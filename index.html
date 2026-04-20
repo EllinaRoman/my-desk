@@ -33,8 +33,11 @@
               placeholder="Поиск по названию..."
             />
           </div>
+
           <div class="status_group filter-group">
-            <label class="filter-label" for="status_filter">статус</label>
+            <label class="book-label filter-label" for="status_filter"
+              >статус</label
+            >
             <select class="filter-select" id="status_filter">
               <option value="all">Все</option>
               <option value="reading">Читаю</option>
@@ -45,19 +48,25 @@
             </select>
           </div>
           <div class="age_group filter-group">
-            <label class="filter-label" for="age_filter">возраст</label>
+            <label class="book-label filter-label" for="age_filter"
+              >возраст</label
+            >
             <select class="filter-select" id="age_filter">
               <option value="all">Все</option>
             </select>
           </div>
           <div class="author_group filter-group">
-            <label class="filter-label" for="author_filter">автор</label>
+            <label class="book-label filter-label" for="author_filter"
+              >автор</label
+            >
             <select class="filter-select" id="author_filter">
               <option value="all">Все</option>
             </select>
           </div>
           <div class="series_group filter-group">
-            <label class="filter-label" for="series_filter">серия</label>
+            <label class="book-label filter-label" for="series_filter"
+              >серия</label
+            >
             <select class="filter-select" id="series_filter">
               <option value="all">Все</option>
             </select>
@@ -79,29 +88,42 @@
       </nav>
 
       <div id="book-grid" class="book-grid container">
-        <!-- <div class="new-book">
-          <img src="" alt="Обложка книги" class="new-book_cover" />
-          <div class="new-book_main-info">
-            <div class="new-book_info">
-              <div class="new-book_text">
-                <p class="new-book_title"></p>
-                <p class="new-book_author"></p>
+        <div class="no-book">
+          <span class="icon">📭</span>Книги не найдены. Добавьте первую!
+        </div>
+
+        <!-- <div class="new-book" data-status="read">
+          <div class="new-book_bar"></div>
+          <div class="new-book_main">
+            <img
+              src=""
+              alt="Обложка книги"
+              class="new-book_cover"
+            />
+            <div class="new-book_main-info">
+              <div class="new-book_info">
+                <div class="new-book_text">
+                  <p class="new-book_title"></p>
+                  <p class="new-book_author"></p>
+                </div>
+                <div class="new-book_tags">
+                  <p class="tag-age new-book_age"></p>
+                  <p class="tag-series new-book_series">Серия</p>
+                  <p class="tag-genre new-book_genre"></p>
+                <p class="tag-trop new-book_trop"></p>
+                  <p class="new-book_status" data-status="read"></p>
+                </div>
+                <div class="new-book_stars">★★★★☆</div>
               </div>
-              <div class="new-book_tags">
-                <p class="new-book_age"></p>
-                <p class="new-book_series"></p>
-                <p class="new-book_genre"></p>
-                <p class="new-book_trop"></p>
-                <p class="new-book_status" data-status="read">✅ Прочитано</p>
-              </div>
-              <div class="new-book_stars">★★★★☆</div>
             </div>
           </div>
         </div> -->
+
       </div>
     </main>
 
     <div class="modal_group">
+      <!-- Модалка случайной книги -->
       <div class="modal-overlay">
         <div class="modal_random-book">
           <button type="button" class="close-modal">
@@ -111,17 +133,16 @@
             <h3 class="random-book_title">✨ Случайная книга</h3>
             <div class="random-book_book-info">
               <img class="random-book_cover" src="" alt="Обложка книги" />
-              <!-- <div class="random-book_tags">
-                <div class="random-book_tag-age">12+</div>
-                <div class="random-book_tag-genre">Романтика</div>
-                <div class="random-book_tag-trop">Избранный</div>
-              </div> -->
+              <div class="random-book_tags">
+                <div class="tag-age"></div>
+                <!-- <div class="tag-genre"></div>
+                <div class="tag-trop"></div> -->
+              </div>
             </div>
             <div class="random-book_text">
               <p class="random-book_book-title"></p>
               <p class="random-book_book-author"></p>
-              <!-- <p class="random-book_book-annotation">
-              </p> -->
+              <!-- <p class="random-book_book-annotation"></p> -->
             </div>
             <!-- <div class="random-book_series-group">
               <p class="random-book_series-title"></p>
@@ -148,6 +169,7 @@
         </div>
       </div>
 
+      <!-- Модалка редактирования книги -->
       <div class="modal-overlay">
         <div class="modal_edit-book">
           <button type="button" class="close-modal">
@@ -162,10 +184,12 @@
               </p> -->
             </div>
           </div>
-          <!-- <div class="edit-book_tags">
-            <div class="edit-book_tag-genre">Романтика</div>
-            <div class="edit-book_tag-trop">Избранный</div>
-          </div> -->
+          <div class="edit-book_tags">
+            <div class="tag-age"></div>
+            <!-- <p class="tag-series"></p>
+            <div class="tag-genre"></div>
+            <div class="tag-trop"></div> -->
+          </div>
           <div class="status-book_group">
             <label class="book-label">Статус</label>
             <div class="status-toggle">
@@ -201,7 +225,7 @@
                 value="not-reading"
               />
 
-              <label for="edit-reading">Читаю</label>
+              <label for="edit-reading" class="status-active">Читаю</label>
               <label for="edit-completed">Прочитано</label>
               <label for="edit-want">Хочу</label>
               <label for="edit-future">На будущее</label>
@@ -228,7 +252,7 @@
               <textarea
                 name="edit-opinion"
                 id="edit-opinion"
-                class="edit-opinion"
+                class="book-textarea"
                 placeholder="Что понравилось? Что нет? Кому посоветуете?"
               ></textarea>
             </div>
@@ -238,7 +262,7 @@
               <textarea
                 name="edit-notes"
                 id="edit-notes"
-                class="edit-notes"
+                class="book-textarea"
                 placeholder="Цитаты, мысли, впечатления..."
               ></textarea>
             </div>
@@ -251,6 +275,7 @@
         </div>
       </div>
 
+      <!-- Модалка добавления книги -->
       <div class="modal-overlay">
         <div class="modal_add-book" id="modal_add-book">
           <button type="button" class="close-modal">
@@ -288,7 +313,7 @@
                       name="author"
                       id="author"
                       list="author-list"
-                      class="add-book_author"
+                      class="add-book_field"
                       placeholder="Имя автора"
                     />
                     <datalist id="author-list"></datalist>
@@ -300,7 +325,7 @@
                       name="series"
                       id="series"
                       list="series-list"
-                      class="add-book_series"
+                      class="add-book_field"
                       placeholder="Название серии"
                     />
                     <datalist id="series-list"></datalist>
@@ -312,7 +337,7 @@
                       name="series-num"
                       id="series-num"
                       placeholder="Не указано"
-                      class="add-book_series-num"
+                      class="add-book_field"
                     />
                   </div>
                   <div class="add-book_age-list">
@@ -324,10 +349,9 @@
                       name="age"
                       id="age"
                       list="age-list"
-                      class="add-book_age"
+                      class="add-book_field"
                       placeholder="Выберите возраст"
                     />
-
                     <datalist id="age-list">
                       <option value="0+"></option>
                       <option value="6+"></option>
@@ -350,26 +374,26 @@
                       class="add-book_new-genre"
                       placeholder="Название жанра"
                     />
-                    <datalist id="genres-list"> </datalist>
-                    <button type="button" class="btn btn_add-book_genre">
+                    <datalist id="genres-list"></datalist>
+
+                    <button type="button" class="btn btn_add-tag">
                       + Добавить
                     </button>
                   </div>
-                  <div class="add-genre">
+                  <!-- <div class="add-genre">
                     <div class="genre">
-                      <button type="button" class="btn genre-btn active-genre">
-                        <span class="text-genre">Фэнтези</span>
-                        <span class="delete-genre">&times;</span>
-                      </button>
-                      <button type="button" class="btn genre-btn">
-                        <span class="text-genre">Фэнтези</span>
+                      <button
+                        type="button"
+                        class="btn genre-btn tag-genre active-genre"
+                      >
+                        <span class="text-genre"></span>
                         <span class="delete-genre">&times;</span>
                       </button>
                     </div>
                     <p class="choice-advice">
                       Выберите 2 основных нажатием на жанр
                     </p>
-                  </div>
+                  </div> -->
                 </div>
               </div>
               <div class="add-book_trops">
@@ -384,27 +408,27 @@
                       class="add-book_new-trop"
                       placeholder="Название тропа"
                     />
-                    <datalist id="trops-list"> </datalist>
-                    <button type="button" class="btn btn_add-book_trop">
+                    <datalist id="trops-list"></datalist>
+
+                    <button type="button" class="btn btn_add-tag">
                       + Добавить
                     </button>
                   </div>
                 </div>
-                <div class="add-trop">
+                <!-- <div class="add-trop">
                   <div class="trop">
-                    <button type="button" class="btn trop-btn active-trop">
-                      <span class="text-trop">Избранный</span>
-                      <span class="delete-trop">&times;</span>
-                    </button>
-                    <button type="button" class="btn trop-btn">
-                      <span class="text-trop">Избранный</span>
+                    <button
+                      type="button"
+                      class="btn trop-btn tag-trop active-trop"
+                    >
+                      <span class="text-trop"></span>
                       <span class="delete-trop">&times;</span>
                     </button>
                   </div>
                   <p class="choice-advice">
                     Выберите 2 основных нажатием на жанр
                   </p>
-                </div>
+                </div> -->
               </div>
               <div class="add-book_annotation">
                 <label class="book-label" for="annotation">Аннотация</label>
@@ -450,7 +474,7 @@
                     value="not-reading"
                   />
 
-                  <label for="add-reading">Читаю</label>
+                  <label for="add-reading" class="status-active">Читаю</label>
                   <label for="add-completed">Прочитано</label>
                   <label for="add-want">Хочу</label>
                   <label for="add-future">На будущее</label>
@@ -460,7 +484,7 @@
                 </div>
               </div>
             </div>
-            <div class="book-rating_group add-book_reting">
+            <!-- <div class="book-rating_group add-book_rating">
               <div class="book-rating-with-stars">
                 <label class="book-label">Рейтинг</label>
                 <div class="star-rating">
@@ -474,24 +498,26 @@
 
               <div class="book-rating-my-opinion">
                 <label class="book-label">Моё мнение</label>
+
                 <textarea
                   name="edit-opinion"
                   id="edit-opinion"
                   placeholder="Что понравилось? Что нет? Кому посоветуете?"
-                  class="book-rating-my-opinion_text"
+                  class="book-textarea"
                 ></textarea>
               </div>
 
               <div class="book-rating-notes">
                 <label class="book-label">Заметки</label>
+
                 <textarea
                   name="edit-notes"
                   id="edit-notes"
                   placeholder="Цитаты, мысли, впечатления..."
-                  class="book-rating-notes_text"
+                  class="book-textarea"
                 ></textarea>
               </div>
-            </div>
+            </div> -->
 
             <div class="add-book_controls">
               <button type="button" class="btn btn_add-book_cancel">

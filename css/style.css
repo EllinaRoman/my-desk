@@ -2,6 +2,9 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent2) var(--bg2);
 }
 
 /* [data-theme="dark"] {
@@ -96,9 +99,24 @@ ul {
   border: 0;
 }
 
-.upcase {
-  text-transform: uppercase;
+/* скроллбар */
+::-webkit-scrollbar {
+  width: 6px;
 }
+
+::-webkit-scrollbar-track {
+  background: var(--bg2);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--accent2);
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent1);
+}
+
 
 .container {
   padding-right: 32px;
@@ -109,6 +127,10 @@ ul {
 select {
   cursor: pointer;
 }
+
+/* ==============================
+   HEADER
+============================== */
 
 .header_container {
   padding-top: 20px;
@@ -188,6 +210,10 @@ select {
   outline: 1px solid var(--card-border);
 }
 
+/* ==============================
+   FILTER / MAIN CONTROL
+============================== */
+
 .main-control {
   background-color: var(--bg2);
   border: 1px solid var(--card-border);
@@ -215,7 +241,6 @@ select {
   font-size: 0.9rem;
   outline: none;
   background-color: var(--bg2);
-
   transition: border-color 0.3s ease;
 }
 
@@ -240,14 +265,20 @@ select {
   align-items: center;
 }
 
-.filter-label {
+.book-label {
   color: var(--text3);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   font-family: var(--main-text-font);
-
   text-transform: uppercase;
+  margin-bottom: 7px;
+  display: block;
+}
+
+.filter-label {
+  font-size: 0.78rem;
+  margin-bottom: 0;
 }
 
 .filter-select {
@@ -290,6 +321,10 @@ select {
   outline: 2px solid var(--accent2);
 }
 
+/* ==============================
+   NAVIGATION
+============================== */
+
 .navigation {
   background-color: var(--bg);
   padding-top: 32px;
@@ -313,11 +348,9 @@ select {
   background-color: transparent;
   outline: none;
   cursor: pointer;
-
   transition:
     transform 0.3s ease,
     color 0.3s ease;
-
   display: inline-block;
   position: relative;
 }
@@ -333,25 +366,70 @@ select {
   color: var(--accent1);
 }
 
+/* ==============================
+   BOOK GRID
+============================== */
+
 .book-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 23px;
+}
+
+.no-book {
+  grid-column: 1 / -1;
+  font-size: 1rem;
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text3);
+  font-weight: 400;
+  font-family: var(--main-text-font);
+}
+
+.icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  display: block;
 }
 
 .new-book_bar {
   height: 100%;
   width: 4px;
   flex-shrink: 0;
+  border-radius: 16px 0 0 16px;
+}
+
+[data-status="read"] .new-book_bar {
+  background-color: var(--read);
+}
+[data-status="reading"] .new-book_bar {
+  background-color: var(--reading);
+}
+[data-status="want"] .new-book_bar {
+  background-color: var(--want);
+}
+[data-status="future"] .new-book_bar {
+  background-color: var(--future);
+}
+[data-status="nope"] .new-book_bar {
+  background-color: var(--nope);
 }
 
 .new-book {
-  padding: 17px 34px 17px 15px;
   background-color: var(--card);
   border-radius: 16px;
   display: flex;
+  overflow: clip;
+  overflow-clip-margin: 0;
+  cursor: pointer;
+}
+
+.new-book_main {
+  display: flex;
   flex-wrap: nowrap;
   gap: 14px;
+  padding: 17px 34px 17px 15px;
+  flex: 1;
 }
 
 .new-book_cover {
@@ -390,45 +468,40 @@ select {
   flex-wrap: wrap;
 }
 
-.new-book_age {
+.tag-age,
+.tag-genre,
+.tag-trop,
+.tag-series {
+  font-family: var(--main-text-font);
+  font-weight: 700;
+  font-size: 0.7rem;
+  padding: 3px 9px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.tag-age {
   color: var(--text2);
-  font-family: var(--main-text-font);
-  font-weight: 700;
-  font-size: 0.7rem;
-  padding: 3px 9px;
   background-color: var(--bg3);
-  border-radius: 20px;
   border: 1px solid var(--card-border);
+  font-weight: 700;
 }
 
-.new-book_series {
-  color: var(--main_white);
-  font-family: var(--main-text-font);
-  font-weight: 500;
-  font-size: 0.7rem;
-  padding: 3px 9px;
-  background: linear-gradient(135deg, var(--accent1), var(--accent3));
-  border-radius: 20px;
-}
-
-.new-book_genre {
+.tag-genre {
   color: var(--tag-genre-text);
-  font-family: var(--main-text-font);
-  font-weight: 700;
-  font-size: 0.7rem;
-  padding: 3px 9px;
   background-color: var(--tag-genre);
-  border-radius: 20px;
 }
 
-.new-book_trop {
+.tag-trop {
   color: var(--tag-trope-text);
-  font-family: var(--main-text-font);
-  font-weight: 700;
-  font-size: 0.7rem;
-  padding: 3px 9px;
   background-color: var(--tag-trope);
-  border-radius: 20px;
+}
+
+.tag-series {
+  color: var(--main_white);
+  background: linear-gradient(135deg, var(--accent1), var(--accent3));
 }
 
 .new-book_status {
@@ -438,24 +511,23 @@ select {
   padding: 3px 9px;
   border-radius: 20px;
   color: var(--main_white);
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 }
 
 .new-book_status[data-status="reading"] {
   background-color: var(--reading);
 }
-
 .new-book_status[data-status="future"] {
   background-color: var(--future);
 }
-
 .new-book_status[data-status="nope"] {
   background-color: var(--nope);
 }
-
 .new-book_status[data-status="want"] {
   background-color: var(--want);
 }
-
 .new-book_status[data-status="read"] {
   background-color: var(--read);
 }
@@ -467,9 +539,10 @@ select {
   color: var(--star-active);
 }
 
-/* MODAL */
+/* ==============================
+   MODAL — ОСНОВА И ОВЕРЛЕЙ
+============================== */
 
-/* --- Основа и Оверлей --- */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -496,17 +569,30 @@ select {
   pointer-events: all;
 }
 
-/* --- Контейнер модалки --- */
-.modal_random-book {
+.modal_random-book,
+.modal_edit-book,
+.modal_add-book {
   position: relative;
   width: 100%;
-  max-width: 480px;
-  max-height: 90vh;
   padding: 36px;
   background-color: var(--card);
   border-radius: 24px;
   border: 1px solid var(--card-border);
   box-shadow: 0 20px 60px var(--shadow2);
+  max-height: 90vh;
+}
+
+.modal_random-book {
+  max-width: 480px;
+}
+
+.modal_edit-book {
+  max-width: 620px;
+}
+
+.modal_add-book {
+  max-width: 620px;
+  overflow-y: auto;
 }
 
 .close-modal {
@@ -523,7 +609,10 @@ select {
   border-radius: 20px;
 }
 
-/* --- Секция обложки и тегов --- */
+/* ==============================
+   MODAL — СЛУЧАЙНАЯ КНИГА
+============================== */
+
 .random-book_main-info {
   display: flex;
   flex-direction: column;
@@ -534,7 +623,7 @@ select {
 .random-book_title {
   font-family: var(--main-title-font);
   font-size: 1.8rem;
-  font-weight: 400px;
+  font-weight: 400;
   margin-bottom: 20px;
 }
 
@@ -564,35 +653,6 @@ select {
   gap: 5px;
 }
 
-/* --- Теги --- */
-.random-book_tag-age,
-.random-book_tag-genre,
-.random-book_tag-trop {
-  font-family: var(--main-text-font);
-  font-size: 0.7rem;
-  padding: 3px 9px;
-  border-radius: 20px;
-}
-
-.random-book_tag-age {
-  border: 1px solid var(--card-border);
-  background-color: var(--bg3);
-  color: var(--text2);
-}
-
-.random-book_tag-genre {
-  background-color: var(--tag-genre);
-  color: var(--tag-genre-text);
-  font-weight: 700;
-}
-
-.random-book_tag-trop {
-  background-color: var(--tag-trope);
-  color: var(--tag-trope-text);
-  font-weight: 700;
-}
-
-/* --- Текстовый блок --- */
 .random-book_text {
   display: flex;
   flex-direction: column;
@@ -629,6 +689,7 @@ select {
 }
 
 /* --- Серии --- */
+
 .random-book_series-group {
   width: 100%;
   margin-top: 14px;
@@ -647,6 +708,9 @@ select {
   font-size: 0.8rem;
   color: var(--accent1);
   margin-bottom: 8px;
+  letter-spacing: 0.06em;
+
+  text-transform: uppercase;
 }
 
 .random-book_all-series {
@@ -685,7 +749,8 @@ select {
   font-weight: 700;
 }
 
-/* --- Кнопки --- */
+/* --- Кнопки случайной книги --- */
+
 .random-book_buttons {
   display: flex;
   justify-content: center;
@@ -720,21 +785,9 @@ select {
   background-color: var(--nope);
 }
 
-/* EDIT MODAL */
-
-.modal_edit-book {
-  background-color: var(--card);
-  padding: 36px;
-  border-radius: 24px;
-
-  border: 1px solid var(--card-border);
-  box-shadow: 0 20px 60px var(--shadow2);
-
-  max-width: 620px;
-  width: 100%;
-  position: relative;
-  max-height: 90vh;
-}
+/* ==============================
+   MODAL — РЕДАКТИРОВАНИЕ КНИГИ
+============================== */
 
 .edit-book_main-info {
   display: flex;
@@ -751,7 +804,7 @@ select {
 }
 
 .edit-book_book-info {
-  font-display: flex;
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
@@ -785,44 +838,14 @@ select {
   margin-top: 10px;
 }
 
-.edit-book_tag-genre {
-  background-color: var(--tag-genre);
-  color: var(--tag-genre-text);
-  font-weight: 700;
-  font-family: var(--main-text-font);
-  font-size: 0.7rem;
-  padding: 3px 9px;
-  border-radius: 20px;
-}
-
-.edit-book_tag-trop {
-  background-color: var(--tag-trope);
-  color: var(--tag-trope-text);
-  font-weight: 700;
-  font-family: var(--main-text-font);
-  font-size: 0.7rem;
-  padding: 3px 9px;
-  border-radius: 20px;
-}
+/* ==============================
+   СТАТУС И ПЕРЕКЛЮЧАТЕЛЬ
+============================== */
 
 .status-book_group {
   border-top: 1px solid var(--card-border);
   margin-top: 10px;
   padding-top: 10px;
-}
-
-.book-label {
-  color: var(--text3);
-  font-family: var(--main-text-font);
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  margin-bottom: 7px;
-  font-weight: 700;
-
-  text-transform: uppercase;
-}
-
-.status-book_group {
   display: flex;
   flex-direction: column;
   font-family: var(--main-text-font);
@@ -837,6 +860,7 @@ select {
   border: 1px solid var(--card-border);
   overflow: hidden;
 }
+
 .status-toggle input[type="radio"] {
   display: none;
 }
@@ -855,17 +879,26 @@ select {
   user-select: none;
 }
 
+.status-toggle label.status-active {
+  font-weight: 600;
+  color: var(--main_white);
+}
+
 .status-glider {
   position: absolute;
   top: 4px;
   left: 4px;
   height: calc(100% - 8px);
   width: calc(100% / 5);
-  background-color: var(--tag-genre);
+  background-color: var(--accent1);
   border-radius: 50px;
   z-index: 1;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* ==============================
+   РЕЙТИНГ
+============================== */
 
 .book-rating_group {
   display: flex;
@@ -873,7 +906,6 @@ select {
   gap: 18px;
   padding: 17px 19px 37px 19px;
   margin-top: 18px;
-
   background-color: var(--bg2);
   border-radius: 12px;
   border: 1px solid var(--card-border);
@@ -889,7 +921,6 @@ select {
   border: none;
   outline: none;
   cursor: pointer;
-
   font-size: 1.6rem;
   color: var(--star);
   line-height: 1;
@@ -899,7 +930,7 @@ select {
   color: var(--star-active);
 }
 
-.edit-opinion {
+.book-textarea {
   width: 100%;
   border-radius: 12px;
   background-color: var(--bg2);
@@ -915,29 +946,11 @@ select {
   overflow: auto;
 }
 
-.edit-opinion::placeholder {
+.book-textarea::placeholder {
   color: var(--text3);
 }
 
-.edit-notes {
-  width: 100%;
-  border-radius: 12px;
-  background-color: var(--bg2);
-  border: 1px solid var(--card-border);
-  padding: 11px 16px;
-  min-height: 80px;
-  margin-top: 7px;
-  color: var(--text);
-  font-family: var(--main-text-font);
-  font-size: 0.9rem;
-  resize: none;
-  outline: none;
-  overflow: auto;
-}
-
-.edit-notes::placeholder {
-  color: var(--text3);
-}
+/* --- Кнопки редактирования --- */
 
 .edit-book_controls {
   display: flex;
@@ -968,33 +981,21 @@ select {
   border: none;
 }
 
-.modal_add-book {
-  background-color: var(--card);
-  padding: 36px;
-  border-radius: 24px;
-
-  border: 1px solid var(--card-border);
-  box-shadow: 0 20px 60px var(--shadow2);
-
-  max-width: 620px;
-  width: 100%;
-  position: relative;
-  max-height: 90vh;
-  overflow-y: auto;
-}
+/* ==============================
+   MODAL — ДОБАВЛЕНИЕ КНИГИ
+============================== */
 
 .add-book_title {
   font-family: var(--main-title-font);
   font-size: 1.8rem;
   color: var(--text);
   font-weight: 400;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .add-book_main {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: flex-start;
 }
 
@@ -1011,9 +1012,7 @@ select {
 
 .add-book_input-title {
   width: 100%;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  padding-left: 16px;
+  padding: 12px 16px;
   color: var(--text);
   font-size: 0.9rem;
   border: 1px solid var(--card-border);
@@ -1040,7 +1039,6 @@ select {
 
 .add-book_label-cover {
   width: 100%;
-
   border-radius: 12px;
   border: 1px dashed var(--card-border);
   padding-top: 149px;
@@ -1054,97 +1052,44 @@ select {
   font-family: var(--main-text-font);
 }
 
-.add-book_author {
+.add-book_field {
   width: 100%;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  padding-left: 16px;
+  padding: 12px 0 12px 16px;
   color: var(--text);
   font-size: 0.9rem;
   border: 1px solid var(--card-border);
   background-color: var(--bg2);
   border-radius: 12px;
-  margin-top: 7px;
   font-family: var(--main-text-font);
 }
 
-.add-book_author::placeholder {
+.add-book_field::placeholder {
   color: var(--text3);
 }
 
-.add-book_series {
-  width: 100%;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  padding-left: 16px;
-  color: var(--text);
-  font-size: 0.9rem;
-  border: 1px solid var(--card-border);
-  background-color: var(--bg2);
-  border-radius: 12px;
-  margin-top: 7px;
-  font-family: var(--main-text-font);
-}
+/* --- Жанры --- */
 
-.add-book_series::placeholder {
-  color: var(--text3);
-}
-
-.add-book_age {
-  width: 100%;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  padding-left: 16px;
-  color: var(--text);
-  font-size: 0.9rem;
-  border: 1px solid var(--card-border);
-  background-color: var(--bg2);
-  border-radius: 12px;
-  margin-top: 7px;
-  font-family: var(--main-text-font);
-}
-
-.add-book_age::placeholder {
-  color: var(--text3);
-}
-
-.add-book_series-num {
-  width: 100%;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  padding-left: 16px;
-  color: var(--text);
-  font-size: 0.9rem;
-  border: 1px solid var(--card-border);
-  background-color: var(--bg2);
-  border-radius: 12px;
-  margin-top: 7px;
-  font-family: var(--main-text-font);
-}
-
-.add-book_series-num::placeholder {
-  color: var(--text3);
+.trop-btn,
+.genre-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .new-genre {
   display: flex;
   align-items: center;
-
   gap: 8px;
-  margin-top: 7px;
 }
 
 .add-book_new-genre {
   flex: 1;
-  padding-top: 6px;
-  padding-bottom: 6px;
-  padding-left: 14px;
+  padding: 6px 6px 6px 14px;
   color: var(--text);
   font-size: 0.85rem;
   border: 1px solid var(--card-border);
   background-color: var(--bg2);
   border-radius: 20px;
-
   font-family: var(--main-text-font);
 }
 
@@ -1152,14 +1097,13 @@ select {
   color: var(--text3);
 }
 
-.btn_add-book_genre {
+.btn_add-tag {
   font-family: var(--main-text-font);
   color: var(--main_white);
   background-color: var(--accent1);
   padding: 7px 14px;
   border-radius: 50px;
   font-size: 0.8rem;
-
   border: none;
   outline: none;
   white-space: nowrap;
@@ -1175,9 +1119,7 @@ select {
 
 .genre {
   flex: 1;
-  padding-top: 6px;
-  padding-bottom: 6px;
-  padding-left: 14px;
+  padding: 6px 6px 6px 14px;
   color: var(--text);
   font-size: 0.85rem;
   border: 1px dashed var(--card-border);
@@ -1192,14 +1134,13 @@ select {
   font-size: 0.8rem;
   padding: 3px 9px;
   border-radius: 20px;
-  background-color: var(--tag-genre);
-  color: var(--tag-genre-text);
   font-weight: 700;
   border: none;
   outline: none;
 }
 
-.delete-genre {
+.delete-genre,
+.delete-trop {
   font-size: 1rem;
 }
 
@@ -1207,11 +1148,11 @@ select {
   border: 1px solid var(--tag-genre-text);
 }
 
+/* --- Тропы --- */
+
 .trop {
   flex: 1;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 14px;
+  padding: 8px 8px 8px 14px;
   color: var(--text);
   font-size: 0.9rem;
   border: 1px dashed var(--card-border);
@@ -1226,39 +1167,29 @@ select {
   font-size: 0.8rem;
   padding: 3px 9px;
   border-radius: 20px;
-  background-color: var(--tag-trope);
-  color: var(--tag-trope-text);
   font-weight: 700;
   border: none;
   outline: none;
 }
 
-.delete-trop {
-  font-size: 1rem;
-}
-
 .active-trop {
-  border: 1px solid var(--tag-genre-text);
+  border: 1px solid var(--tag-trope-text);
 }
 
 .new-trop {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 7px;
 }
 
 .add-book_new-trop {
   flex: 1;
-  padding-top: 7px;
-  padding-bottom: 7px;
-  padding-left: 14px;
+  padding: 7px 7px 7px 14px;
   color: var(--text);
   font-size: 0.85rem;
   border: 1px solid var(--card-border);
   background-color: var(--bg2);
   border-radius: 20px;
-
   font-family: var(--main-text-font);
 }
 
@@ -1266,18 +1197,7 @@ select {
   color: var(--text3);
 }
 
-.btn_add-book_trop {
-  font-family: var(--main-text-font);
-  color: var(--main_white);
-  background-color: var(--accent1);
-  padding: 7px 14px;
-  border-radius: 50px;
-  font-size: 0.8rem;
-
-  border: none;
-  outline: none;
-  white-space: nowrap;
-}
+/* --- Аннотация --- */
 
 .add-book_annotation {
   display: flex;
@@ -1286,9 +1206,7 @@ select {
 
 .new-annotation {
   width: 100%;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  padding-left: 16px;
+  padding: 12px 16px;
   color: var(--text);
   font-size: 0.9rem;
   border: 1px solid var(--card-border);
@@ -1305,64 +1223,39 @@ select {
   color: var(--text3);
 }
 
-.book-rating-my-opinion_text {
-  width: 100%;
-  border-radius: 12px;
-  background-color: var(--bg2);
-  border: 1px solid var(--card-border);
-  padding: 11px 16px;
-  min-height: 80px;
-  margin-top: 7px;
-  color: var(--text);
-  font-family: var(--main-text-font);
-  font-size: 0.9rem;
-  resize: none;
-  outline: none;
-  overflow: auto;
-}
-
-.book-rating-my-opinion_text::placeholder {
-  color: var(--text3);
-}
-
-.book-rating-notes_text {
-  width: 100%;
-  border-radius: 12px;
-  background-color: var(--bg2);
-  border: 1px solid var(--card-border);
-  padding: 11px 16px;
-  min-height: 80px;
-  margin-top: 7px;
-  color: var(--text);
-  font-family: var(--main-text-font);
-  font-size: 0.9rem;
-  resize: none;
-  outline: none;
-  overflow: auto;
-}
-
-.book-rating-notes_text::placeholder {
-  color: var(--text3);
-}
+/* --- Статус в модалке добавления --- */
 
 .status_add-book {
   border-top: none;
   margin-top: 0;
   padding-top: 0;
-  border-bottom: 1px solid var(--card-border);
-  padding-bottom: 18px;
 }
 
-.add-book_reting {
+.add-book_rating {
   width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 36px;
+  position: relative;
 }
+
+.add-book_rating::before {
+  content: "";
+  position: absolute;
+  top: -18px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: var(--card-border);
+}
+
+/* --- Кнопки добавления --- */
 
 .add-book_controls {
   margin-top: 24px;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-
   width: 100%;
 }
 
@@ -1387,4 +1280,141 @@ select {
   background: linear-gradient(135deg, var(--accent1), var(--accent3));
   padding: 10px 22px;
   box-shadow: 0 4px 15px var(--shadow2);
+}
+
+
+/* ==============================
+   ИНТЕРАКТИВНОСТЬ
+============================== */
+
+
+.btn {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+.new-book {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.new-book:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px var(--shadow2);
+}
+
+
+.close-modal:hover {
+  background-color: var(--accent2);
+  color: var(--main_white);
+  cursor: pointer;
+}
+
+.close-modal:active {
+  transform: scale(0.95);
+}
+
+.btn_random-book_want:hover { background-color: var(--accent3); }
+.btn_random-book_future:hover { opacity: 0.85; }
+.btn_random-book_none:hover { opacity: 0.85; }
+
+.btn_random-book_want:active,
+.btn_random-book_future:active,
+.btn_random-book_none:active {
+  transform: scale(0.97);
+}
+
+
+.btn-save:hover {
+  box-shadow: 0 6px 20px var(--shadow2);
+  transform: translateY(-2px);
+}
+
+.btn-save:active { transform: scale(0.97); }
+
+.btn-delete:hover {
+  background-color: var(--nope);
+  color: var(--main_white);
+}
+
+.btn-delete:active { transform: scale(0.97); }
+
+
+.btn_add-book_cancel:hover {
+  background-color: var(--accent2);
+  color: var(--main_white);
+  border-color: var(--accent2);
+}
+
+.btn_add-book_add:hover {
+  box-shadow: 0 6px 20px var(--shadow2);
+  transform: translateY(-2px);
+}
+
+.btn_add-book_cancel:active,
+.btn_add-book_add:active {
+  transform: scale(0.97);
+}
+
+.btn_add-tag:hover {
+  background-color: var(--accent3);
+}
+
+.btn_add-tag:active { transform: scale(0.97); }
+
+
+.add-book_field:hover,
+.add-book_input-title:hover,
+.new-annotation:hover,
+.book-textarea:hover,
+.add-book_new-genre:hover,
+.add-book_new-trop:hover {
+  border-color: var(--accent1);
+}
+
+.add-book_field:focus,
+.add-book_input-title:focus,
+.new-annotation:focus,
+.book-textarea:focus,
+.add-book_new-genre:focus,
+.add-book_new-trop:focus {
+  outline: 3px solid var(--card-border);
+  border-color: var(--accent1);
+}
+
+.star-btn {
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.star-btn:hover {
+  transform: scale(1.2);
+  color: var(--star-active);
+}
+
+.star-btn:active {
+  transform: scale(0.9);
+}
+
+.genre-btn,
+.trop-btn {
+  animation: tag-in 0.2s ease;
+}
+
+@keyframes tag-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.book-rating_group {
+  animation: rating-in 0.3s ease;
+}
+
+@keyframes rating-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
