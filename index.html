@@ -46,7 +46,7 @@
               <option value="completed">Прочитано</option>
               <option value="want">Хочу прочитать</option>
               <option value="future">На будущее</option>
-              <option value="none">Не буду читать</option>
+              <option value="nope">Не буду читать</option>
             </select>
           </div>
           <div class="age_group filter-group">
@@ -97,29 +97,6 @@
         <div class="no-book">
           <span class="icon">📭</span>Книги не найдены. Добавьте первую!
         </div>
-
-        <!-- <div class="new-book" data-status="read" data-modal="edit-book">
-          <div class="new-book_bar"></div>
-          <div class="new-book_main">
-            <img src="" alt="Обложка книги" class="new-book_cover" />
-            <div class="new-book_main-info">
-              <div class="new-book_info">
-                <div class="new-book_text">
-                  <p class="new-book_title"></p>
-                  <p class="new-book_author"></p>
-                </div>
-                <div class="new-book_tags">
-                  <p class="tag-age new-book_age"></p>
-                  <p class="tag-series new-book_series">Серия</p>
-                  <p class="tag-genre new-book_genre"></p>
-                  <p class="tag-trop new-book_trop"></p>
-                  <p class="new-book_status" data-status="read"></p>
-                </div>
-                <div class="new-book_stars">★★★★☆</div>
-              </div>
-            </div>
-          </div>
-        </div> -->
       </div>
     </main>
 
@@ -167,7 +144,7 @@
             <button type="button" class="btn btn_random-book_future">
               🌟 На будущее
             </button>
-            <button type="button" class="btn btn_random-book_none">
+            <button type="button" class="btn btn_random-book_nope">
               🚫 Не буду читать
             </button>
           </div>
@@ -208,14 +185,14 @@
               <input
                 type="radio"
                 name="edit-status"
-                id="edit-completed"
-                value="completed"
+                id="edit-want"
+                value="want"
               />
               <input
                 type="radio"
                 name="edit-status"
-                id="edit-want"
-                value="want"
+                id="edit-completed"
+                value="completed"
               />
               <input
                 type="radio"
@@ -226,15 +203,15 @@
               <input
                 type="radio"
                 name="edit-status"
-                id="edit-none"
+                id="edit-nope"
                 value="not-reading"
               />
 
               <label for="edit-reading" class="status-active">Читаю</label>
-              <label for="edit-completed">Прочитано</label>
               <label for="edit-want">Хочу</label>
+              <label for="edit-completed">Прочитано</label>
               <label for="edit-future">На будущее</label>
-              <label for="edit-none">Не буду</label>
+              <label for="edit-nope">Не буду</label>
 
               <div class="status-glider"></div>
             </div>
@@ -361,7 +338,7 @@
                       id="age"
                       list="age-list"
                       class="add-book_field"
-                      placeholder="Выберите возраст"
+                      placeholder="0+"
                     />
                     <datalist id="age-list">
                       <option value="0+"></option>
@@ -453,14 +430,14 @@
                   <input
                     type="radio"
                     name="add-status"
-                    id="add-completed"
-                    value="completed"
+                    id="add-want"
+                    value="want"
                   />
                   <input
                     type="radio"
                     name="add-status"
-                    id="add-want"
-                    value="want"
+                    id="add-completed"
+                    value="completed"
                   />
                   <input
                     type="radio"
@@ -471,29 +448,38 @@
                   <input
                     type="radio"
                     name="add-status"
-                    id="add-none"
+                    id="add-nope"
                     value="not-reading"
                   />
 
                   <label for="add-reading" class="status-active">Читаю</label>
-                  <label for="add-completed">Прочитано</label>
                   <label for="add-want">Хочу</label>
+                  <label for="add-completed">Прочитано</label>
                   <label for="add-future">На будущее</label>
-                  <label for="add-none">Не буду</label>
+                  <label for="add-nope">Не буду</label>
 
                   <div class="status-glider"></div>
                 </div>
               </div>
             </div>
-            <!-- <div class="book-rating_group add-book_rating">
+            <div
+              class="book-rating_group add-book_rating"
+              style="display: none"
+            >
               <div class="book-rating-with-stars">
                 <label class="book-label">Рейтинг</label>
-                <div class="star-rating">
+                <div
+                  class="star-rating"
+                  data-value="0"
+                  style="position: relative"
+                >
                   <button class="star-btn" type="button">★</button>
                   <button class="star-btn" type="button">★</button>
                   <button class="star-btn" type="button">★</button>
                   <button class="star-btn" type="button">★</button>
                   <button class="star-btn" type="button">★</button>
+
+                  <span class="error-message">Оцените книгу</span>
                 </div>
               </div>
 
@@ -518,7 +504,7 @@
                   class="book-textarea"
                 ></textarea>
               </div>
-            </div> -->
+            </div>
 
             <div class="add-book_controls">
               <button type="button" class="btn btn_add-book_cancel">
@@ -533,10 +519,13 @@
       </div>
     </div>
 
+    <script src="js/storage.js" defer></script>
+    <script src="js/library.js" defer></script>
     <script src="js/theme.js" defer></script>
     <script src="js/ui-helpers.js" defer></script>
     <script src="js/tags-trops.js" defer></script>
     <script src="js/status-glider.js" defer></script>
+    <script src="js/form.js" defer></script>
     <script src="js/modals.js" defer></script>
   </body>
 </html>

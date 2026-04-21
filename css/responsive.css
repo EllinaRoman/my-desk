@@ -126,8 +126,13 @@
     font-size: 1.2rem;
   }
 
+  .book-rating_group {
+    gap: 10px;
+    padding: 17px 19px 25px 19px;
+  }
+
   .star-btn {
-    font-size: 1.3rem;
+    font-size: 1.6rem;
     padding: 4px;
   }
 
@@ -237,7 +242,7 @@
 
   .btn_random-book_want,
   .btn_random-book_future,
-  .btn_random-book_none {
+  .btn_random-book_nope {
     width: 100%;
   }
 }

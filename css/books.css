@@ -64,6 +64,7 @@
   color: var(--text3);
   font-weight: 400;
   font-family: var(--main-text-font);
+  display: none;
 }
 
 .icon {
@@ -98,11 +99,11 @@
 }
 
 /* Цвета полоски статуса */
-[data-status="read"] .new-book_bar { background-color: var(--read); }
+[data-status="completed"] .new-book_bar { background-color: var(--read); }
 [data-status="reading"] .new-book_bar { background-color: var(--reading); }
 [data-status="want"] .new-book_bar { background-color: var(--want); }
 [data-status="future"] .new-book_bar { background-color: var(--future); }
-[data-status="nope"] .new-book_bar { background-color: var(--nope); }
+[data-status="not-reading"] .new-book_bar { background-color: var(--nope); }
 
 .new-book_main {
   display: flex;
@@ -112,12 +113,43 @@
   flex: 1;
 }
 
-.new-book_cover {
+.new-book_cover, .new-book_no-cover {
   border-radius: 10px;
   width: 206px;
   height: 313px;
   object-fit: cover;
 }
+
+.new-book_no-cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;  
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.no-cover_title {
+  font-family: var(--main-title-font);
+  font-size: 1.7rem;
+  color: var(--text);
+  letter-spacing: 130%;
+  font-weight: 800;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.no-cover_author {
+  font-family: var(--main-text-font);
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+
 
 /* ==============================
    @BOOK_DETAILS
@@ -166,9 +198,9 @@
 /* Цвета плашки статуса */
 .new-book_status[data-status="reading"] { background-color: var(--reading); }
 .new-book_status[data-status="future"] { background-color: var(--future); }
-.new-book_status[data-status="nope"] { background-color: var(--nope); }
+.new-book_status[data-status="not-reading"] { background-color: var(--nope); }
 .new-book_status[data-status="want"] { background-color: var(--want); }
-.new-book_status[data-status="read"] { background-color: var(--read); }
+.new-book_status[data-status="completed"] { background-color: var(--read); }
 
 .new-book_stars {
   display: flex;

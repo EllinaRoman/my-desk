@@ -14,4 +14,3 @@ btnTheme.addEventListener('click', () => {
     applyTheme(newTheme);
     localStorage.setItem('theme', newTheme);
 })
-
