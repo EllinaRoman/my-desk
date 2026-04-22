@@ -1,3 +1,5 @@
+import { resetForm } from './form.js';
+
 document.addEventListener('click', async (e) => {
     const target = e.target;
     const isCloseBtn = target.closest('.close-modal');
@@ -31,7 +33,7 @@ document.addEventListener('click', async (e) => {
     }
 })
 
-const setModalState = (overlay, isOpen) => {
+export const setModalState = (overlay, isOpen) => {
     overlay.classList.toggle('open', isOpen);
     document.body.classList.toggle('modal-open', isOpen);
 

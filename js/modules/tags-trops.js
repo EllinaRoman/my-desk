@@ -1,11 +1,11 @@
-const selectedGenres = [];
-const selectedTropes = [];
+export const selectedGenres = [];
+export const selectedTropes = [];
 const btnAddGenres = document.querySelector('#add_genre');
-const listGenre = document.querySelector('.genre');
+export const listGenre = document.querySelector('.genre');
 const btnAddTropes = document.querySelector('#add_trope');
-const listTrope = document.querySelector('.trope');
+export const listTrope = document.querySelector('.trope');
 
-const addTag = (input, storage, list, itemClass, textClass, deleteClass) => {
+export const addTag = (input, storage, list, itemClass, textClass, deleteClass) => {
     const value = input.value;
     if (value.trim()) {
         storage.push(value);
@@ -21,7 +21,7 @@ const addTag = (input, storage, list, itemClass, textClass, deleteClass) => {
     }
 }
 
-const clickTag = (e, storage, list, activeClass, itemSelector, textSelector, deleteSelector) => {
+export const clickTag = (e, storage, list, activeClass, itemSelector, textSelector, deleteSelector) => {
     const deleteBtn = e.target.closest(deleteSelector);
     if (deleteBtn) {
         const btn = deleteBtn.closest(itemSelector);

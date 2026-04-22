@@ -6,14 +6,43 @@
     transform 0.25s ease,
     box-shadow 0.2s ease,
     border-color 0.2s ease,
-    opacity 0.3s ease
+    opacity 0.3s ease;
+}
+
+html,
+body {
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease;
+}
+
+button,
+input,
+header,
+.main-control,
+nav {
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
 }
 
 .new-book {
   transition:
+    background-color 0.4s ease,
+    color 0.4s ease,
+    border-color 0.4s ease,
     transform 0.2s ease,
     box-shadow 0.2s ease;
   cursor: pointer;
+}
+
+.new-book_title, .new-book_author, .tag-age, .tag-series, .tag-genre, .tag-trope, .new-book_status, .new-book_stars, .new-book_no-cover {
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease,
+    border-color 0.4s ease;
 }
 
 .star-btn {
@@ -31,7 +60,6 @@
 .trope-btn {
   animation: tag-in 0.2s ease;
 }
-
 
 /* @KEYFRAMES */
 @keyframes tag-in {

@@ -25,6 +25,7 @@
   --tag-trope: #fce8f0;
   --tag-trope-text: #9a3a6a;
   --main_white: #ffffff;
+  --no-cover-text: #8e5d99;
 
   --main-title-font: "Cormorant Garamond", serif;
   --main-text-font: "Nunito", sans-serif;
@@ -57,5 +58,6 @@ html[data-theme="dark"] {
   --tag-genre-text: #cc90f0;
   --tag-trope: #3a1a30;
   --tag-trope-text: #e090c0;
+  --no-cover-text: #dca7ea;
 }
 

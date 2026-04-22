@@ -20,8 +20,17 @@ bookCoverInput.addEventListener('change', (e) => {
     }
 })
 
-const getBookDesign = () => {
-    const isPink = Math.random() > 0.5;
-    const hue = isPink ? Math.floor(Math.random() * 20 + 325) : Math.floor(Math.random() * 20 + 265);
-    return `hsl(${hue}, 70%, 80%)`;
+export const getBookDesign = () => {
+    const chance = Math.random() * 100;
+    let hue;
+    if (chance < 30) { 
+        hue = Math.floor(Math.random() * 40 + 310); 
+    } else if (chance < 60) { 
+        hue = Math.floor(Math.random() * 50 + 240); 
+    } else if (chance < 85) { 
+        hue = Math.floor(Math.random() * 40 + 180); 
+    } else { 
+        hue = Math.floor(Math.random() * 50 + 80); 
+    }
+    return hue;
 }

@@ -1,3 +1,11 @@
+import { getBookDesign } from './ui-helpers.js';
+import { selectedGenres, selectedTropes } from './tags-trops.js';
+import { listGenre, listTrope } from './tags-trops.js';
+import { saveToDB } from './storage.js';
+import { gliderReset } from './status-glider.js';
+import { renderBooks } from './library.js';
+import { setModalState } from './modals.js';
+
 const formAddBook = document.querySelector('#modal_add-book');
 
 formAddBook.addEventListener('submit', (e) => {
@@ -77,7 +85,7 @@ formAddBook.addEventListener('submit', (e) => {
     }
 })
 
-const resetForm = (form) => {
+export const resetForm = (form) => {
     form.reset();
     const overlay = form.closest('.modal-overlay');
     const imgPreview = overlay.querySelector('.cover-preview');

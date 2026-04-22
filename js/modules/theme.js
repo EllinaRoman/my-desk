@@ -1,7 +1,7 @@
 const btnTheme = document.querySelector('.btn_change-theme');
 const html = document.documentElement;
 
-const applyTheme = (theme) => {
+export const applyTheme = (theme) => {
     html.dataset.theme = theme;
     btnTheme.textContent = theme === "dark" ? '🌙' : '🌸';
 }

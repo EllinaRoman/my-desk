@@ -64,7 +64,6 @@
   color: var(--text3);
   font-weight: 400;
   font-family: var(--main-text-font);
-  display: none;
 }
 
 .icon {
@@ -116,8 +115,9 @@
 .new-book_cover, .new-book_no-cover {
   border-radius: 10px;
   width: 206px;
-  height: 313px;
+  height: 309px;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .new-book_no-cover {
@@ -133,7 +133,7 @@
 .no-cover_title {
   font-family: var(--main-title-font);
   font-size: 1.7rem;
-  color: var(--text);
+  color: var(--no-cover-text);
   letter-spacing: 130%;
   font-weight: 800;
   flex: 1;
@@ -145,7 +145,7 @@
 .no-cover_author {
   font-family: var(--main-text-font);
   font-weight: 600;
-  color: var(--text);
+  color: var(--no-cover-text);
   font-size: 0.9rem;
 }
 
@@ -192,7 +192,6 @@
   color: var(--main_white);
   display: inline-flex;
   align-items: center;
-  line-height: 1;
 }
 
 /* Цвета плашки статуса */

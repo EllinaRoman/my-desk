@@ -35,7 +35,7 @@ document.addEventListener('click', (e) => {
     }
 })
 
-const gliderReset = (form) => {
+export const gliderReset = (form) => {
     const overlay = form.closest('.modal-overlay');
     const firstLabel = overlay.querySelector('label[for="add-reading"]');
     if (!firstLabel) return;

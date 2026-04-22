@@ -17,7 +17,7 @@ const initDB = () => {
 };
 
 
-const saveToDB = async (book) => {
+export const saveToDB = async (book) => {
     const db = await initDB();
     return new Promise((resolve, reject) => {
         const transaction = db.transaction(STORE_NAME, 'readwrite');
@@ -30,7 +30,7 @@ const saveToDB = async (book) => {
     });
 };
 
-const getAllBooks = async () => {
+export const getAllBooks = async () => {
     const db = await initDB();
     return new Promise((resolve, reject) => {
         const transaction = db.transaction(STORE_NAME, 'readonly');
