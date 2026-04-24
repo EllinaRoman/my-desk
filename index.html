@@ -96,16 +96,43 @@
 
       <nav class="navigation container">
         <div class="border_nav">
-          <button type="button" class="navigation_title active_title">
+          <button
+            type="button"
+            class="navigation_title active_title"
+            id="my-shelf"
+            data-target="book-grid"
+          >
             Моя полка
           </button>
-          <button type="button" class="navigation_title">Все полки</button>
-          <button type="button" class="navigation_title">Моя комната</button>
+          <button
+            type="button"
+            class="navigation_title"
+            id="all-shelves"
+            data-target="all-shelves"
+          >
+            Все полки
+          </button>
+          <button
+            type="button"
+            class="navigation_title"
+            id="my-room"
+            data-target="my-room"
+          >
+            Моя комната
+          </button>
         </div>
       </nav>
 
-      <div id="book-grid" class="book-grid container"></div>
-      <div id="all-shelves" class="all-shelves container"></div>
+      <div id="book-grid-content" class="book-grid container tab-content"></div>
+      <div
+        id="all-shelves-content"
+        class="all-shelves container hidden tab-content"
+      >
+        <div class="shelves-text no-book">В разработке...</div>
+      </div>
+      <div id="my-room-content" class="my-room container hidden tab-content">
+        <div class="room-text no-book">В разработке...</div>
+      </div>
     </main>
 
     <div class="modal_group">
@@ -314,10 +341,8 @@
               </div>
               <div class="add-book_info">
                 <label class="add-book_label-cover" for="add-book_cover"
-                  ><span class="cover-text">Загрузить обложку</span><img
-                    src=""
-                    alt="Preview"
-                    class="cover-preview hidden"
+                  ><span class="cover-text">Загрузить обложку</span
+                  ><img src="" alt="Preview" class="cover-preview hidden"
                 /></label>
                 <input
                   type="file"

@@ -58,6 +58,11 @@
   max-width: 620px;
 }
 
+.modal_confirm-delete {
+  max-width: 350px;
+  padding: 20px;
+}
+
 .modal_add-book {
   max-width: 620px;
 }
