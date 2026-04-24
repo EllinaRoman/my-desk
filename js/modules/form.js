@@ -118,6 +118,9 @@ export const resetForm = (form) => {
 
     imgPreview.src = '';
     imgPreview.classList.add('hidden');
+    if (coverText) {
+        coverText.classList.remove('hidden');
+    }
 
     selectedGenres.length = 0;
     selectedTropes.length = 0;
