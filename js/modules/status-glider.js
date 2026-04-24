@@ -1,14 +1,30 @@
+export const updateGliderPosition = (toggle, label) => {
+    const glider = toggle.querySelector('.status-glider');
+    const isVertical = window.getComputedStyle(toggle).flexDirection === 'column';
+    const GAP = 4;
+
+    if (isVertical) {
+        glider.style.top = label.offsetTop + 'px';
+        glider.style.left = '0';
+        glider.style.height = label.offsetHeight + 'px';
+        glider.style.width = '100%';
+    } else {
+        glider.style.left = label.offsetLeft + 'px';
+        glider.style.width = label.offsetWidth + 'px';
+        glider.style.top = '';
+        glider.style.height = '';
+    }
+}
+
 document.addEventListener('change', (e) => {
     const toggle = e.target.closest('.status-toggle');
     const modal = e.target.closest('.modal-overlay');
     if (toggle) {
-        const glider = toggle.querySelector('.status-glider');
         const label = toggle.querySelector(`label[for='${e.target.id}']`);
-        glider.style.left = label.offsetLeft + 'px';
-        glider.style.width = label.offsetWidth + 'px';
+        updateGliderPosition(toggle, label);
 
-        const display = modal.querySelector('.add-book_rating');
-        display.classList.toggle('hidden', e.target.value !== 'completed');
+        const display = modal.querySelector('.add-book_rating, .book-rating_group');
+        display?.classList.toggle('hidden', e.target.value !== 'completed');
         const statusActive = toggle.querySelector('.status-active');
         if (statusActive) {
             statusActive.classList.remove('status-active');
@@ -42,10 +58,9 @@ export const gliderReset = (form) => {
     if (!firstLabel) return;
 
     const toggle = firstLabel.closest('.status-toggle');
-    const glider = toggle.querySelector('.status-glider');
 
-    glider.style.left = firstLabel.offsetLeft + 'px';
-    glider.style.width = firstLabel.offsetWidth + 'px';
+    updateGliderPosition(toggle, firstLabel);
+
     toggle.querySelectorAll('label').forEach(l => l.classList.remove('status-active'));
     firstLabel.classList.add('status-active');
 
@@ -58,3 +73,12 @@ export const gliderReset = (form) => {
         starRating.dataset.value = 0;
     }
 };
+
+export const setStarRating = (container, value) => {
+    const starRating = container.querySelector('.star-rating');
+    if (!starRating) return;
+    starRating.querySelectorAll('.star-btn').forEach((star, i) => {
+        star.classList.toggle('star-active', i < value);
+    });
+    starRating.dataset.value = value;
+}

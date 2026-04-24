@@ -245,9 +245,9 @@
   gap: 12px;
 }
 
-.edit-book_cover {
+.edit-book_cover, .edit-book_no-cover {
   width: 114px;
-  height: 170px;
+  height: 171px;
   object-fit: cover;
   border-radius: 12px;
 }

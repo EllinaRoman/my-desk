@@ -68,7 +68,7 @@
   display: none;
 }
 
-.new-book_no-cover, .random-book_no-cover {
+.new-book_no-cover, .random-book_no-cover, .edit-book_no-cover {
   --h: var(--book-hue, 280); 
   background: linear-gradient(135deg, 
     hsla(var(--h), 70%, 85%, 0.8), 
@@ -78,7 +78,7 @@
   --title-color: var(--accent1);
 }
 
-html[data-theme="dark"] .new-book_no-cover, html[data-theme="dark"] .random-book_no-cover {
+html[data-theme="dark"] .new-book_no-cover, html[data-theme="dark"] .random-book_no-cover, html[data-theme="dark"] .edit-book_no-cover {
   background: linear-gradient(135deg, 
     hsla(var(--h), 40%, 30%, 0.9), 
     var(--card)

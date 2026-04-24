@@ -127,7 +127,7 @@
    ============================== */
 @media (max-width: 600px) {
   html {
-    font-size: 18px;
+    font-size: 17px;
   }
 
   .modal_random-book,
@@ -167,6 +167,7 @@
   .add-book_input-title,
   .new-annotation {
     font-size: 1rem;
+    padding: 5px 0 5px 10px;
   }
 
   .title {
@@ -196,7 +197,9 @@
     align-items: center;
   }
 
-  .btn_random-book_want, .btn_random-book_future, .btn_random-book_nope {
+  .btn_random-book_want,
+  .btn_random-book_future,
+  .btn_random-book_nope {
     width: 60%;
   }
 
@@ -315,6 +318,14 @@
     padding-right: 12px;
   }
 
+  .status-toggle {
+    flex-direction: column;
+  }
+
+  .status-glider {
+    transition: height 0.3s ease; 
+  }
+
   .status-toggle label {
     white-space: nowrap;
   }
@@ -361,8 +372,8 @@
   .add-book_field,
   .add-book_input-title,
   .new-annotation {
-    padding: 8px 10px;
-    font-size: 1rem;
+    padding: 4px 8px;
+    font-size: 0.9rem;
   }
 
   .add-book_label-cover {

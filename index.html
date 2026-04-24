@@ -124,9 +124,6 @@
                   <p class="no-cover_title"></p>
                 </div>
                 <div class="random-book_tags">
-                  <div class="tag-age"></div>
-                  <div class="tag-genre"></div>
-                  <div class="tag-trop"></div>
                 </div>
               </div>
               <div class="random-book_text">
@@ -161,20 +158,21 @@
           <button type="button" class="close-modal">
             <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
           </button>
+          <div class="edit-book_all-info">
           <div class="edit-book_main-info">
             <img class="edit-book_cover" src="" alt="Обложка книги" />
+            <div class="edit-book_no-cover hidden">
+                  <p class="no-cover_author"></p>
+                  <p class="no-cover_title"></p>
+                </div>
             <div class="edit-book_book-info">
               <h3 class="edit-book_title"></h3>
               <p class="edit-book_author"></p>
-              <!-- <p class="edit-book_book-annotation">
-              </p> -->
+              <p class="edit-book_book-annotation">
+              </p>
             </div>
           </div>
           <div class="edit-book_tags">
-            <div class="tag-age"></div>
-            <!-- <p class="tag-series"></p>
-            <div class="tag-genre"></div>
-            <div class="tag-trop"></div> -->
           </div>
           <div class="status-book_group">
             <label class="book-label">Статус</label>
@@ -220,8 +218,9 @@
               <div class="status-glider"></div>
             </div>
           </div>
+          </div>
 
-          <!-- <div class="book-rating_group">
+          <div class="book-rating_group hidden">
             <div class="book-rating-with-stars">
               <label class="book-label">Рейтинг</label>
               <div class="star-rating">
@@ -252,11 +251,11 @@
                 placeholder="Цитаты, мысли, впечатления..."
               ></textarea>
             </div>
-          </div> -->
+          </div>
 
           <div class="edit-book_controls">
-            <button type="button" class="btn btn-delete">🗑 Удалить</button>
-            <button type="button" class="btn btn-save">Сохранить</button>
+            <button type="button" class="btn btn-delete" data-action="delete">🗑 Удалить</button>
+            <button type="button" class="btn btn-save" data-action="save">Сохранить</button>
           </div>
         </div>
       </div>

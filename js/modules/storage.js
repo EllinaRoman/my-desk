@@ -70,3 +70,30 @@ export const updateBookStatus = async (id, newStatus) => {
         transaction.onerror = () => reject(transaction.error);
     });
 };
+
+export const deleteBook = async (id) => {
+    const db = await initDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        
+        const request = store.delete(id); // Вот она, команда удаления
+
+        request.onsuccess = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+    });
+};
+
+
+export const updateFullBook = async (updatedBook) => {
+    const db = await initDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+
+        store.put(updatedBook);
+
+        transaction.oncomplete = () => resolve(updatedBook);
+        transaction.onerror = () => reject(transaction.error);
+    });
+};

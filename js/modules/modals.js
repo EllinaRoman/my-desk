@@ -1,7 +1,9 @@
 import { resetForm } from './form.js';
 import { getRandomBook } from './randomBook.js';
-import { updateBookStatus } from './storage.js';
+import { updateBookStatus,  deleteBook, updateFullBook, getAllBooks } from './storage.js';
 import { renderBooks } from './library.js';
+import { updateGliderPosition } from './status-glider.js';
+import { setupEditModal } from './editBook.js';
 
 document.addEventListener('click', async (e) => {
     const target = e.target;
@@ -40,18 +42,44 @@ document.addEventListener('click', async (e) => {
         return;
     }
 
-    const card = e.target.closest('.new-book[data-modal]');
-    if (card) {
-        const modal = card.dataset.modal;
-        const overlay = document.querySelector(`.modal-overlay[data-modal="${modal}"]`);
-        if (overlay) setModalState(overlay, true);
+    const editBtn = e.target.closest('.edit-book_controls .btn');
+    if (editBtn) {
+        editAction(editBtn);
+        return;
     }
 
+    const card = e.target.closest('.new-book[data-modal="edit-book"]');
+    if (card) {
+        const bookId = +card.dataset.id;
+        const allBooks = await getAllBooks();
+        const foundBook = allBooks.find(b => b.id === bookId);
+        const modal = card.dataset.modal;
+
+        if (foundBook) {
+            await setupEditModal(foundBook);
+            const overlay = document.querySelector('.modal-overlay[data-modal="edit-book"]');
+            if (overlay) setModalState(overlay, true);
+        }
+    }
+    return;
 });
 
 export const setModalState = (overlay, isOpen) => {
     overlay.classList.toggle('open', isOpen);
     document.body.classList.toggle('modal-open', isOpen);
+
+    if (isOpen) {
+        const toggle = overlay.querySelector('.status-toggle');
+        if (toggle) {
+            const activeInput = toggle.querySelector('input:checked');
+            if (activeInput) {
+                const activeLabel = toggle.querySelector(`label[for="${activeInput.id}"]`);
+                if (activeLabel) {
+                    updateGliderPosition(toggle, activeLabel);
+                }
+            }
+        }
+    }
 
     if (!isOpen) {
         overlay.querySelectorAll('.is-invalid').forEach(el => {
@@ -73,6 +101,46 @@ const randomAction = async (btn) => {
     } else {
         await updateBookStatus(bookId, 'not-reading');
     }
+    await renderBooks();
+    setModalState(overlay, false);
+}
+
+const editAction = async (btn) => {
+    const { action, id } = btn.dataset;
+    const overlay = btn.closest('.modal-overlay');
+    const bookId = Number(id);
+    if (!bookId) return;
+
+    if (action === 'delete') {
+        await deleteBook(bookId);
+    } else {
+        const allBooks = await getAllBooks();
+        const book = allBooks.find(b => b.id === bookId);
+
+        if (book) {
+            const newStatus = overlay.querySelector('input[name="edit-status"]:checked').value;
+            const newOpinion = overlay.querySelector('#edit-opinion')?.value || '';
+            const newNotes = overlay.querySelector('#edit-notes')?.value || '';
+            const newRating = Number(overlay.querySelector('.star-rating')?.dataset.value) || 0;
+
+            const statusTextMap = {
+                'want': 'Хочу', 'future': 'Потом', 'not-reading': 'Не буду',
+                'reading': 'Читаю', 'completed': 'Прочитано'
+            };
+
+            const updatedBook = {
+                ...book,
+                status: newStatus,
+                statusText: statusTextMap[newStatus] || newStatus,
+                opinion: newOpinion,
+                notes: newNotes,
+                rating: newRating
+            };
+
+            await updateFullBook(updatedBook);
+        }
+    }
+
     await renderBooks();
     setModalState(overlay, false);
 }
