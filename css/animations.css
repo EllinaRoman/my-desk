@@ -61,11 +61,13 @@ nav {
 .new-book_status,
 .new-book_stars,
 .new-book_no-cover,
-.border_nav, .btn_add-book, .btn_change-theme {
+.border_nav, .btn_add-book, .btn_change-theme, .btn_login-register, .btn_random-book, .filter-select,
+.search_filter, .btn_login {
   transition:
     background-color 0.4s ease,
     color 0.4s ease,
-    border-color 0.4s ease;
+    border-color 0.4s ease,
+    transform 0.2s ease;
 }
 
 .star-btn {

@@ -1,16 +1,17 @@
 export const updateGliderPosition = (toggle, label) => {
     const glider = toggle.querySelector('.status-glider');
-    const isVertical = window.getComputedStyle(toggle).flexDirection === 'column';
+    const isLoginToggle = !!toggle.closest('.login-register_group');
+    const isVertical = !isLoginToggle && window.getComputedStyle(toggle).flexDirection === 'column';
 
     if (isVertical) {
         glider.style.top = (label.offsetTop + 4) + 'px';
-        glider.style.left = '';
+        glider.style.left = '4px';
         glider.style.height = (label.offsetHeight - 8) + 'px';
         glider.style.width = '';
     } else {
         glider.style.left = label.offsetLeft + 'px';
         glider.style.width = label.offsetWidth + 'px';
-        glider.style.top = '';
+        glider.style.top = '4px';
         glider.style.height = '';
     }
 };

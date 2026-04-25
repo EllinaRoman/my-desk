@@ -207,6 +207,23 @@
     padding-left: 16px;
   }
 
+  .header_container {
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .btn_add-book {
+    width: 57%;
+  }
+
+  .control {
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
   .navigation {
     padding-top: 22px;
     padding-bottom: 22px;
@@ -222,9 +239,7 @@
     transform: translateY(-5px);
   }
 
-  .add-book_field,
-  .add-book_input-title,
-  .new-annotation,
+  .form-input,
   .add-book_new-genre,
   .add-book_new-trope {
     font-size: 1rem;
@@ -379,7 +394,7 @@
 }
 
 /* ==============================
-   @MOBILE_SMALL (420px)
+   @MOBILE_SMALL (490px)
    ============================== */
 @media screen and (max-width: 490px) {
   .container {
@@ -390,6 +405,33 @@
   .status-toggle {
     flex-direction: column;
     padding: 0;
+  }
+
+  .login-register_group .status-toggle {
+    flex-direction: row;
+    padding: 4px;
+  }
+
+  .status-toggle .status-glider {
+    width: calc(100% - 8px);
+    left: 4px;
+    transition:
+      top 0.3s ease,
+      height 0.3s ease;
+  }
+
+  .login-register_group .status-toggle .status-glider {
+    width: calc(100% / 2);
+    left: 4px;
+    top: 4px;
+    height: calc(100% - 8px);
+    transition:
+      left 0.3s ease,
+      width 0.3s ease;
+  }
+
+  .login-register_group .status-toggle label {
+    padding: 3px 0;
   }
 
   .status-glider {
@@ -404,20 +446,8 @@
     padding: 8px 0;
   }
 
-  .header_container {
-    flex-direction: column;
-    gap: 12px;
-    padding-top: 12px;
-    padding-bottom: 12px;
-  }
-
   .title {
     align-self: center;
-  }
-
-  .control {
-    width: 100%;
-    justify-content: space-between;
   }
 
   .active_title {
@@ -449,9 +479,7 @@
     padding: 12px;
   }
 
-  .add-book_field,
-  .add-book_input-title,
-  .new-annotation,
+  .form-input,
   .add-book_new-genre,
   .add-book_new-trope {
     padding: 9px 13px;
@@ -476,14 +504,27 @@
   }
 
   .add-book_controls {
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 15px;
   }
 
+  .confirm-delete_controls {
+    flex-direction: column-reverse;
+  }
+
   .btn_add-book_cancel,
-  .btn_add-book_add {
+  .btn_add-book_add,
+  .btn_login,
+  .btn-save,
+  .btn-delete {
     width: 100%;
     text-align: center;
+  }
+
+  .edit-book_controls {
+    flex-direction: column;
+    gap: 10px;
+    flex-direction: column-reverse;
   }
 
   .random-book_book-info {

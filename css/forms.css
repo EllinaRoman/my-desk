@@ -115,18 +115,6 @@ html[data-theme="dark"] .new-book_no-cover, html[data-theme="dark"] .random-book
   gap: 8px;
 }
 
-.add-book_new-genre, 
-.add-book_new-trope {
-  flex: 1;
-  padding: 7px 7px 7px 14px;
-  color: var(--text);
-  font-size: 0.85rem;
-  border: 1px solid var(--card-border);
-  background-color: var(--bg2);
-  border-radius: 20px;
-  font-family: var(--main-text-font);
-}
-
 /* @ANNOTATION_AND_STATUS */
 
 .add-book_annotation {

@@ -6,13 +6,9 @@
 .btn_add-book,
 .btn_change-theme,
 .filter-select,
-.search_filter {
+.search_filter,
+.btn_login-register {
   font-family: var(--main-text-font);
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease,
-    border-color 0.3s ease,
-    transform 0.2s ease;
 }
 
 .btn_random-book {
@@ -38,13 +34,15 @@
 }
 
 .btn_add-book,
-.btn_change-theme {
+.btn_change-theme,
+.btn_login-register {
   color: var(--text2);
   background-color: var(--bg3);
   border: 1px solid var(--card-border);
 }
 
-.btn_add-book {
+.btn_add-book,
+.btn_login-register {
   padding: 9px 20px;
   font-size: 0.85rem;
   border-radius: 50px;
@@ -53,23 +51,26 @@
 
 .btn_change-theme {
   width: 42px;
-  height: 42px;
   font-size: 1.2rem;
   border-radius: 50%;
+  aspect-ratio: 1 / 1;
 }
 
 .btn_add-book:hover,
-.btn_change-theme:hover {
+.btn_change-theme:hover,
+.btn_login-register:hover {
   background-color: var(--accent2);
   color: var(--main_white);
 }
 .btn_add-book:focus-visible,
-.btn_change-theme:focus-visible {
+.btn_change-theme:focus-visible,
+.btn_login-register:focus-visible {
   outline: 1px solid var(--card-border);
 }
 
 .btn_add-book:active,
-.btn_change-theme:active {
+.btn_change-theme:active,
+.btn_login-register:active {
   transform: scale(0.98);
 }
 
@@ -114,10 +115,7 @@
   color: var(--text3);
 }
 
-.add-book_input-title,
-.add-book_field,
-.new-annotation,
-.book-textarea {
+.form-input {
   width: 100%;
   color: var(--text);
   font-size: 0.9rem;
@@ -127,54 +125,49 @@
   font-family: var(--main-text-font);
   outline: none;
   transition: border-color 0.2s ease;
-}
-
-.book-textarea,
-.new-annotation {
-  padding: 12px 16px;
-  min-height: 80px;
-  resize: none;
-  outline: none;
-  overflow: auto;
-}
-
-.add-book_input-title {
   padding: 12px 16px;
 }
 
-.add-book_field {
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg2) inset;
+  -webkit-text-fill-color: var(--text);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.form-input--field {
   padding: 12px 0 12px 16px;
 }
 
-select.add-book_field {
+select.form-input--field {
   appearance: none;
   -webkit-appearance: none;
 }
 
-.book-textarea::placeholder,
-.add-book_input-title::placeholder,
-.add-book_field::placeholder,
-.new-annotation::placeholder,
-.add-book_new-genre::placeholder,
-.add-book_new-trope::placeholder {
+.form-input--textarea {
+  min-height: 80px;
+  resize: none;
+  overflow: auto;
+}
+
+.form-input--tag {
+  padding: 7px 7px 7px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  flex: 1;
+}
+
+/* --- Состояния --- */
+.form-input::placeholder {
   color: var(--text3);
 }
 
-.add-book_field:hover,
-.add-book_input-title:hover,
-.new-annotation:hover,
-.book-textarea:hover,
-.add-book_new-genre:hover,
-.add-book_new-trope:hover {
+.form-input:hover {
   border-color: var(--accent1);
 }
 
-.add-book_field:focus,
-.add-book_input-title:focus,
-.new-annotation:focus,
-.book-textarea:focus,
-.add-book_new-genre:focus,
-.add-book_new-trope:focus {
+.form-input:focus {
   outline: 3px solid var(--card-border);
   border-color: var(--accent1);
 }
@@ -221,16 +214,47 @@ select.add-book_field {
 }
 
 /* Кнопки действий в модалках */
-.btn-save {
+
+.btn-primary {
   font-family: var(--main-text-font);
-  font-weight: 700;
-  color: var(--main_white);
-  border-radius: 50px;
-  background: linear-gradient(135deg, var(--accent1), var(--accent3));
-  padding: 11px 22px;
-  box-shadow: 0 4px 15px var(--shadow2);
+  font-weight: 600;
   font-size: 0.85rem;
-  border: none;
+  border: 1px solid var(--card-border);
+  border-radius: 50px;
+  color: var(--main_white);
+  background: linear-gradient(135deg, var(--accent1), var(--accent3));
+  padding: 10px 22px;
+  box-shadow: 0 4px 15px var(--shadow2);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px var(--shadow2);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-secondary {
+  font-family: var(--main-text-font);
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid var(--card-border);
+  border-radius: 50px;
+  color: var(--text2);
+  background-color: var(--bg3);
+  padding: 10px 18px;
+}
+
+.btn-secondary:hover {
+  background-color: var(--accent2);
+  color: var(--main_white);
+  border-color: var(--accent2);
+}
+
+.btn-secondary:active {
+  transform: scale(0.97);
 }
 
 .btn-delete,
@@ -246,28 +270,53 @@ select.add-book_field {
   cursor: pointer;
 }
 
-.btn_add-book_add {
-  font-family: var(--main-text-font);
-  font-weight: 600;
-  font-size: 0.85rem;
-  border: 1px solid var(--card-border);
-  border-radius: 50px;
-  color: var(--main_white);
-  background: linear-gradient(135deg, var(--accent1), var(--accent3));
-  padding: 10px 22px;
-  box-shadow: 0 4px 15px var(--shadow2);
+.btn-save {
+  font-weight: 700;
+  padding: 11px 22px;
+  border: none;
 }
 
-.btn_add-book_cancel,
-.btn-confirm-cancel {
-  font-family: var(--main-text-font);
-  font-weight: 600;
-  font-size: 0.85rem;
+.btn_login,
+.btn_register {
+  width: 100%;
+}
+
+.btn-google {
+  background-color: var(--card);
+  color: var(--text);
   border: 1px solid var(--card-border);
   border-radius: 50px;
-  color: var(--text2);
-  background-color: var(--bg3);
   padding: 10px 18px;
+  font-family: var(--main-text-font);
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-google:hover {
+  border-color: var(--accent1);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+  color: var(--text3);
+  font-family: var(--main-text-font);
+  font-size: 0.8rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-color: var(--text3);
 }
 
 .btn_add-tag {
@@ -286,18 +335,6 @@ select.add-book_field {
   background-color: var(--accent3);
 }
 
-.btn_add-book_cancel:hover,
-.btn-confirm-cancel:hover {
-  background-color: var(--accent2);
-  color: var(--main_white);
-  border-color: var(--accent2);
-}
-
-.btn_add-book_add:hover {
-  box-shadow: 0 6px 20px var(--shadow2);
-  transform: translateY(-2px);
-}
-
 .btn-delete:hover,
 .btn-confirm-delete:hover {
   background-color: var(--nope);
@@ -306,11 +343,9 @@ select.add-book_field {
 
 .btn-delete:active,
 .btn-save:active,
-.btn_add-book_cancel:active,
-.btn_add-book_add:active,
 .btn_add-tag:active,
-.btn-confirm-cancel:active,
-.btn-confirm-delete:active {
+.btn-confirm-delete:active,
+.btn-google:active {
   transform: scale(0.97);
 }
 
@@ -452,9 +487,9 @@ select.add-book_field {
   padding: 3px 0;
   text-align: center;
   font-size: 0.9rem;
-  font-weight: 400;
+  font-weight: 500;
   cursor: pointer;
-  color: var(--text);
+  color: var(--text2);
   position: relative;
   z-index: 2;
   transition: color 0.25s ease;

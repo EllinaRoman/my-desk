@@ -1,0 +1,4389 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+css/animations.css
+css/base.css
+css/books.css
+css/controls.css
+css/forms.css
+css/header.css
+css/helpers.css
+css/modals.css
+css/responsive.css
+css/style.css
+css/ui.css
+css/variables.css
+eslint.config.mjs
+img/icon-192.png
+img/icon-512.png
+img/preview-dark.png
+img/preview-light.png
+img/Vector 2.svg
+index.html
+js/main.js
+js/modules/addBook.js
+js/modules/auth.js
+js/modules/editBook.js
+js/modules/filtres.js
+js/modules/firebase-init.js
+js/modules/library.js
+js/modules/modals.js
+js/modules/navigation.js
+js/modules/randomBook.js
+js/modules/status-glider.js
+js/modules/storage.js
+js/modules/tags-trops.js
+js/modules/theme.js
+js/modules/ui-helpers.js
+manifest.json
+package.json
+README.md
+sw.js
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="js/modules/addBook.js">
+import { getBookDesign } from './ui-helpers.js';
+import { selectedGenres, selectedTropes } from './tags-trops.js';
+import { listGenre, listTrope } from './tags-trops.js';
+import { getAllBooks, saveToDB } from './storage.js';
+import { gliderReset } from './status-glider.js';
+import { renderBooks } from './library.js';
+import { setModalState } from './modals.js';
+
+const formAddBook = document.querySelector('#modal_add-book');
+
+const toggleError = (input, isValid, message = '') => {
+    const parent = input.closest('.add-book_title-book, .add-book_author-list, .add-book_series-num-list');
+    if (!parent) return;
+    parent.classList.toggle('is-invalid', !isValid);
+    const errorEl = parent.querySelector('.error-message');
+    if (errorEl && message) errorEl.textContent = message;
+
+    return isValid;
+};
+
+['title', 'author', 'series-num'].forEach(name => {
+    const input = formAddBook.querySelector(`[name="${name}"]`);
+    input?.addEventListener('input', () => toggleError(input, true));
+});
+
+formAddBook.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const { title, author, cover, series, 'series-num': num } = e.target.elements;
+    const starRating = document.querySelector('.star-rating');
+    const ratingValue = +starRating.dataset.value || 0;
+    const status = new FormData(formAddBook).get('add-status');
+
+    let isValid = true;
+
+    if (!title.value.trim()) isValid = toggleError(title, false);
+    if (!author.value.trim()) isValid = toggleError(author, false);
+
+
+    const seriesValue = series.value.trim();
+    const numValue = num.value.trim();
+
+
+    if (seriesValue) {
+        if (!numValue || +numValue <= 0) {
+            isValid = toggleError(num, false, !numValue ? 'Введите номер серии' : 'Номер должен быть > 0');
+        } else {
+            const allBooks = await getAllBooks();
+            const isDuplicate = allBooks.some(book => book.series?.toLowerCase() === seriesValue.toLowerCase() && book.seriesNum === +numValue);
+            if (isDuplicate) {
+                isValid = toggleError(num, false, 'Номер уже занят');
+            }
+        }
+    }
+
+    if (status === 'completed' && ratingValue === 0) {
+        starRating.closest('.add-book_rating').classList.add('is-invalid');
+        isValid = false;
+    }
+
+
+    if (isValid) {
+        const formData = new FormData(formAddBook);
+        const saveBook = async (coverData) => {
+            const newBook = {
+                id: Date.now(),
+                title: title.value.trim(),
+                author: author.value.trim(),
+                series: formData.get('series'),
+                seriesNum: +formData.get('series-num'),
+                age: formData.get('age').trim() || "0+",
+                annotation: formData.get('annotation').trim() || null,
+                status,
+                statusText: document.querySelector(`label[for="${formAddBook.querySelector('input[name="add-status"]:checked').id}"]`).textContent.trim(),
+                cover: coverData,
+                accentHue: coverData ? null : getBookDesign(),
+                allGenres: [...selectedGenres],
+                allTropes: [...selectedTropes],
+                mainGenres: Array.from(listGenre.querySelectorAll('.active-genre'))
+                    .map(el => el.querySelector('.text-genre').textContent),
+                mainTropes: Array.from(listTrope.querySelectorAll('.active-trope'))
+                    .map(el => el.querySelector('.text-trope').textContent),
+                rating: ratingValue,
+                opinion: formData.get('add-opinion').trim() || null,
+                notes: formData.get('add-notes').trim() || null,
+            };
+
+            try {
+                await saveToDB(newBook);
+                renderBooks();
+            } catch (err) {
+                console.error('Ошибка при сохранении в базу:', err);
+            }
+            resetForm(formAddBook);
+        };
+
+        const file = cover.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                saveBook(reader.result);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            saveBook(null);
+        }
+    }
+});
+
+
+export const resetForm = (form) => {
+    form.reset();
+    const overlay = form.closest('.modal-overlay');
+    const imgPreview = overlay.querySelector('.cover-preview');
+    const label = overlay.querySelector('.add-book_label-cover');
+    const coverText = label.querySelector('.cover-text');
+
+    imgPreview.src = '';
+    imgPreview.classList.add('hidden');
+    if (coverText) {
+        coverText.classList.remove('hidden');
+    }
+
+    selectedGenres.length = 0;
+    selectedTropes.length = 0;
+    listGenre.innerHTML = '';
+    listTrope.innerHTML = '';
+    listGenre.parentElement.classList.add('hidden');
+    listTrope.parentElement.classList.add('hidden');
+    gliderReset(form);
+    setModalState(overlay, false);
+};
+</file>
+
+<file path="js/modules/auth.js">
+import {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    signInWithPopup
+} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+
+import { auth, googleProvider } from './firebase-init.js';
+
+const registerUser = async (email, password) => {
+    try {
+        await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+const loginUser = async (email, password) => {
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        console.log('Залогинен:', userCredential.user.email);
+    } catch (error) {
+        console.error(error.code);
+    }
+}
+
+const loginWithGoogle = async () => {
+    try {
+        await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+        console.error(error.code);
+    }
+}
+
+const logoutUser = async () => {
+    try {
+        await signOut(auth);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+export { registerUser, loginUser, logoutUser, loginWithGoogle };
+
+
+const btnGoogle = document.querySelector('#btn-google');
+
+btnGoogle.addEventListener('click', async () => {
+    await loginWithGoogle();
+});
+
+const loginRegisterForm = document.querySelector('.login-register_group');
+
+loginRegisterForm.addEventListener('change', (e) => {
+    if (e.target.value === 'login') {
+        document.querySelector('.login-form').classList.remove('hidden');
+        document.querySelector('.register-form').classList.add('hidden');
+    } else {
+        document.querySelector('.login-form').classList.add('hidden');
+        document.querySelector('.register-form').classList.remove('hidden');
+    }
+})
+
+const formLogin = document.querySelector('.login');
+
+formLogin.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const { 'email-login': email, 'password-login': password } = e.target.elements;
+    await loginUser(email.value, password.value)
+});
+
+const formRegister = document.querySelector('.register');
+
+formRegister.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const { 'email-register': email, 'password-register': password } = e.target.elements;
+    await registerUser(email.value, password.value)
+});
+</file>
+
+<file path=".gitignore">
+node_modules/
+.eslintcache
+.DS_Store
+</file>
+
+<file path="css/controls.css">
+/* [CONTENTS]
+  1. @LAYOUT ......... Основной контейнер управления
+  2. @FILTERS ........ Группы фильтров и лейблы
+*/
+
+/* ==============================
+   @LAYOUT
+   ============================== */
+.main-control {
+  background-color: var(--bg2);
+  border: 1px solid var(--card-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+/* ==============================
+   @FILTERS
+   ============================== */
+.filter {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-family: var(--main-text-font);
+}
+
+.filter-group {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.filter-label {
+  font-size: 0.78rem;
+  margin-bottom: 0;
+}
+</file>
+
+<file path="css/header.css">
+/* [CONTENTS]
+  1. @LAYOUT ......... Контейнер шапки
+  2. @LOGO ........... Стили заголовка-логотипа
+  3. @CONTROLS ....... Блок кнопок в шапке
+*/
+
+/* ==============================
+   @LAYOUT
+   ============================== */
+.header_container {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  background-color: var(--bg2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ==============================
+   @LOGO
+   ============================== */
+.title {
+  font-weight: 300;
+  font-family: var(--main-title-font);
+  color: var(--accent1);
+  font-size: 2rem;
+  letter-spacing: 0.04em;
+  cursor: default;
+}
+
+.title-accent {
+  color: var(--accent2);
+  font-style: italic;
+}
+
+/* ==============================
+   @CONTROLS
+   ============================== */
+.control {
+  display: flex;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+</file>
+
+<file path="css/helpers.css">
+.hidden {
+  display: none;
+}
+</file>
+
+<file path="eslint.config.mjs">
+import js from "@eslint/js";
+import globals from "globals";
+import { defineConfig } from "eslint/config";
+
+export default defineConfig([
+  {
+    files: ["**/*.{js,mjs,cjs}"], plugins: { js }, rules: {
+      ...js.configs.recommended.rules,
+      "no-unused-vars": "warn",
+      "semi": ["error", "always"]
+    }, languageOptions: { globals: globals.browser }
+  },
+]);
+</file>
+
+<file path="img/Vector 2.svg">
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M15.3536 0.353577L0.353577 15.3536M0.353577 0.353577L15.3536 15.3536" stroke="#7A4D82"/>
+</svg>
+</file>
+
+<file path="js/modules/firebase-init.js">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+import { GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+import { 
+    initializeFirestore, 
+    persistentLocalCache, 
+    persistentMultipleTabManager 
+} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBF3VnLe7KiiNjcHyiB1xPBMEgjIiIpYFE",
+  authDomain: "my-shelf-16ae6.firebaseapp.com",
+  projectId: "my-shelf-16ae6",
+  storageBucket: "my-shelf-16ae6.firebasestorage.app",
+  messagingSenderId: "732693139093",
+  appId: "1:732693139093:web:4834ce8b4c1e2494e2159c"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+});
+
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+
+export { db, auth, googleProvider };
+</file>
+
+<file path="js/modules/navigation.js">
+const navigation = document.querySelector('.navigation');
+const allTitles = navigation.querySelectorAll('.navigation_title');
+ const allContainers = document.querySelectorAll('.tab-content');
+
+navigation.addEventListener('click', (e) => {
+
+    const tab = e.target.closest('.navigation_title');
+        if (!tab) return;
+    if (tab.classList.contains('active_title')) return;
+
+
+    allTitles.forEach(el => el.classList.remove('active_title'));
+    tab.classList.add('active_title');
+
+    allContainers.forEach(container => container.classList.add('hidden'));
+    const targetId = tab.dataset.target;
+    const targetContainer = document.querySelector(`#${targetId}-content`);
+
+    if (targetContainer) {
+        targetContainer.classList.remove('hidden');
+    }
+
+})
+</file>
+
+<file path="package.json">
+{
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.1",
+    "globals": "^17.5.0"
+  }
+}
+</file>
+
+<file path="css/variables.css">
+:root {
+  --bg: #fdf6fc;
+  --bg2: #f7edf5;
+  --bg3: #efe0ed;
+  --card: #ffffff;
+  --card-border: #e8d5e6;
+  --accent1: #c084c8;
+  --accent2: #e8a0d5;
+  --accent3: #d4a0e0;
+  --text: #3d2240;
+  --text2: #7a4d82;
+  --text3: #a878b4;
+  --star: #e0a0c0;
+  --star-active: #c060a0;
+  --shadow: rgba(180, 120, 200, 0.15);
+  --shadow2: rgba(180, 120, 200, 0.3);
+  --reading: #8ab4e8;
+  --read: #88c8a0;
+  --want: #c8a0e0;
+  --future: #e8c88a;
+  --nope: #e89898;
+  --modal-bg: rgba(60, 20, 70, 0.4);
+  --tag-genre: #e8d0f5;
+  --tag-genre-text: #7a3a9a;
+  --tag-trope: #fce8f0;
+  --tag-trope-text: #9a3a6a;
+  --main_white: #ffffff;
+  --no-cover-text: #8e5d99;
+
+  --main-title-font: "Cormorant Garamond", serif;
+  --main-text-font: "Nunito", sans-serif;
+}
+
+
+html[data-theme="dark"] {
+  --bg: #1e0f22;
+  --bg2: #2a1530;
+  --bg3: #36203e;
+  --card: #2e1a36;
+  --card-border: #4a2a55;
+  --accent1: #9060a0;
+  --accent2: #b870a0;
+  --accent3: #a060b8;
+  --text: #f0d8f5;
+  --text2: #cc9adc;
+  --text3: #a070b8;
+  --star: #b06080;
+  --star-active: #e080b0;
+  --shadow: rgba(0, 0, 0, 0.4);
+  --shadow2: rgba(0, 0, 0, 0.6);
+  --reading: #5080c0;
+  --read: #508060;
+  --want: #805098;
+  --future: #907040;
+  --nope: #904040;
+  --modal-bg: rgba(10, 0, 20, 0.7);
+  --tag-genre: #3a2050;
+  --tag-genre-text: #cc90f0;
+  --tag-trope: #3a1a30;
+  --tag-trope-text: #e090c0;
+  --no-cover-text: #dca7ea;
+}
+</file>
+
+<file path="js/modules/filtres.js">
+import { getAllBooks } from './storage.js';
+import { displayBooks } from './library.js';
+
+const searchInput = document.querySelector('#search');
+
+document.addEventListener('change', async (e) => {
+    const allBooks = await getAllBooks();
+
+    const fieldMap = {
+        'status_filter': 'status',
+        'author_filter': 'author',
+        'age_filter': 'age',
+        'series_filter': 'series',
+    };
+
+    const field = fieldMap[e.target.id];
+
+    if (field) {
+        filterRun(allBooks, field, e.target.value);
+    }
+});
+
+searchInput.addEventListener('input', async (e) => {
+    const allBooks = await getAllBooks();
+    const value = e.target.value.toLowerCase().trim();
+    const field = 'title';
+    if (value) {
+        filterRun(allBooks, field, value, false);
+    } else {
+        displayBooks(allBooks);
+    }
+});
+
+const filterRun = (allBooks, field, value, exact = true) => {
+    if (value === "all") {
+        displayBooks(allBooks);
+    }
+    else {
+        const newBooks = allBooks.filter(book =>
+            exact
+                ? book[field]?.toLowerCase() === value.toLowerCase()
+                : book[field]?.toLowerCase().includes(value.toLowerCase())
+        );
+        displayBooks(newBooks);
+    }
+};
+</file>
+
+<file path="js/modules/randomBook.js">
+import { getAllBooks } from './storage.js';
+
+const toggleBlock = (el, show) => {
+    el.classList.toggle('hidden', !show);
+};
+
+const setTextBlock = (el, value) => {
+    const hasValue = !!value;
+    el.classList.toggle('hidden', !hasValue);
+    el.textContent = hasValue ? value : '';
+};
+
+
+export const getRandomBook = async () => {
+    const allBooks = await getAllBooks();
+    const noBook = document.querySelector('.modal_random-book_none');
+    const content = document.querySelector('.modal_random-book_all');
+
+    const books = allBooks.filter(book =>
+        book.status !== 'completed' && book.status !== 'reading'
+    );
+
+    const hasBooks = books.length > 0;
+    toggleBlock(content, hasBooks);
+    toggleBlock(noBook, !hasBooks);
+
+    if (!hasBooks) return;
+
+    let randomBook = books[Math.floor(Math.random() * books.length)];
+    const seriesListAll = content.querySelector('.random-book_series-group');
+    toggleBlock(seriesListAll, !!randomBook.series);
+    if (randomBook.series) {
+        const allSeries = allBooks.filter(el =>
+            el.series?.toLowerCase() === randomBook.series.toLowerCase()
+        );
+
+        const sortSeries = allSeries.sort((a, b) => a.seriesNum - b.seriesNum);
+        randomBook = sortSeries.find(el => el.status !== 'completed' && el.status !== 'reading');
+
+        if (!randomBook) {
+            return getRandomBook();
+        }
+
+
+        const seriesList = content.querySelector('.random-book_all-series');
+        const seriesTitle = content.querySelector('.random-book_series-title');
+        seriesTitle.textContent = `Это ${randomBook.seriesNum} книга серии "${randomBook.series}"`;
+        seriesList.innerHTML = sortSeries.map((el) => {
+            const isActive = el.id === randomBook.id;
+            const isCompleted = el.status === 'completed' ? '(✓)' : '';
+            const numClass = isActive ? 'random-book_main-number' : '';
+            const titleClass = isActive ? 'random-book_main-book' : '';
+
+            return `<li class="random-book_series-quantity">
+                    <p
+                      class="random-book_series-number ${numClass}"
+                    >${el.seriesNum}</p>
+                    <p
+                      class="random-book_series-title-book ${titleClass}"
+                    >${el.title} ${isCompleted}</p>
+                  </li> `;
+        }).join('');
+
+    }
+
+    const title = content.querySelector('.random-book_book-title');
+    const author = content.querySelector('.random-book_book-author');
+    const cover = content.querySelector('.random-book_cover');
+    const noCover = content.querySelector('.random-book_no-cover');
+    const tags = content.querySelector('.random-book_tags');
+    const annotation = content.querySelector('.random-book_book-annotation');
+
+    title.textContent = randomBook.title;
+    author.textContent = randomBook.author;
+
+    tags.innerHTML = [
+        `<div class="tag-age">${randomBook.age}</div>`,
+        ...randomBook.mainGenres.map(g => `<div class="tag-genre">${g}</div>`),
+        ...randomBook.mainTropes.map(t => `<div class="tag-trope">${t}</div>`)
+    ].join('');
+
+
+    const hasCover = !!randomBook.cover;
+    toggleBlock(cover, hasCover);
+    toggleBlock(noCover, !hasCover);
+
+    if (hasCover) {
+        cover.src = randomBook.cover;
+    } else {
+        noCover.style.setProperty('--book-hue', randomBook.accentHue);
+        noCover.querySelector('.no-cover_author').textContent = randomBook.author;
+        noCover.querySelector('.no-cover_title').textContent = randomBook.title;
+    }
+
+    setTextBlock(annotation, randomBook.annotation);
+
+    const randomButtons = content.querySelectorAll('.random-book_buttons .btn');
+
+    randomButtons.forEach(btn => {
+        btn.dataset.id = randomBook.id;
+    });
+};
+</file>
+
+<file path="js/modules/theme.js">
+const btnTheme = document.querySelector('.btn_change-theme');
+const html = document.documentElement;
+
+export const applyTheme = (theme) => {
+    html.dataset.theme = theme;
+    btnTheme.textContent = theme === "dark" ? '🌙' : '🌸';
+};
+
+const savedTheme = localStorage.getItem('theme') || 'light';
+applyTheme(savedTheme);
+
+btnTheme.addEventListener('click', () => {
+    const newTheme = html.dataset.theme === "dark" ? 'light' : "dark";
+    applyTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+});
+</file>
+
+<file path="manifest.json">
+{
+  "short_name": "Полка",
+  "name": "My Shelf",
+  "description": "Моя книжная полка для отслеживания чтения",
+  "icons": [
+    {
+      "src": "img/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "img/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/my-shelf/",
+  "background_color": "#1a1a1a",
+  "display": "standalone",
+  "scope": "/my-shelf/",
+  "theme_color": "#cc9adc"
+}
+</file>
+
+<file path="README.md">
+# 📖 My Shelf — Твой уютный книжный уголок
+
+**My Shelf** — это веб-приложение для книголюбов, которое помогает структурировать личную библиотеку, отслеживать прогресс чтения и сохранять любимые тропы.
+
+
+![Preview](./img/preview-light.png)
+---
+![Preview](./img/preview-dark.png)
+---
+
+## ✨ Особенности
+- **Две темы:** Нежная светлая и атмосферная темная.
+- **Умная форма:** Добавление книг с указанием жанров, тропов и личных заметок.
+- **Статусы чтения:** "Читаю", "Прочитано", "Хочу прочитать" и другие.
+- **Личный архив:** Удобное отображение карточек книг с рейтингом.
+
+## 🎨 Стек технологий
+- **HTML5** (Семантическая верстка)
+- **CSS3** (Custom Properties для тем, Flexbox/Grid)
+- **JavaScript** (Логика модальных окон и фильтрации)
+
+## 🚀 Как запустить
+1. Склонируйте репозиторий: 
+   `git clone https://github.com/EllinaRoman/my-shelf.git`
+2. Откройте `index.html` в вашем браузере.
+
+---
+Разработано с любовью к книгам и коду. 💜
+</file>
+
+<file path="sw.js">
+const CACHE_NAME = 'my-shelf-v1';
+const ASSETS_TO_CACHE = [
+  './',
+  './index.html',
+  './css/style.css',
+  './manifest.json',
+  './img/icon-192.png',
+  './img/icon-512.png',
+  './js/main.js'
+];
+
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(ASSETS_TO_CACHE))
+      .then(() => self.skipWaiting())
+  );
+});
+
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
+          }
+        })
+      );
+    })
+  );
+});
+
+
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        return response || fetch(event.request);
+      })
+  );
+});
+</file>
+
+<file path="css/base.css">
+/* [CONTENTS]
+  1. @RESET .......... Сброс дефолтных стилей
+  2. @GLOBAL ......... Базовые настройки html и body
+  3. @SCROLLBAR ...... Стилизация полосы прокрутки
+  4. @UTILITIES ...... Вспомогательные классы и контейнер
+*/
+
+/* ==============================
+   @RESET
+   ============================== */
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent2) var(--bg2);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+.btn,
+select {
+  cursor: pointer;
+}
+
+/* ==============================
+   @GLOBAL
+   ============================== */
+html {
+  transition: background-color 0.4s ease;
+  font-size: 16px;
+  scroll-behavior: smooth;
+  background-color: var(--bg);
+}
+
+body {
+  min-height: 100vh;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+/* ==============================
+   @SCROLLBAR
+   ============================== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg2);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--accent2);
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent1);
+}
+
+/* ==============================
+   @UTILITIES
+   ============================== */
+.container {
+  padding-right: 32px;
+  padding-left: 32px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+</file>
+
+<file path="js/modules/editBook.js">
+import { updateGliderPosition, setStarRating } from './status-glider.js';
+
+const toggleBlock = (el, show) => {
+    el.classList.toggle('hidden', !show);
+};
+
+const setTextBlock = (el, value) => {
+    const hasValue = !!value;
+    el.classList.toggle('hidden', !hasValue);
+    el.textContent = hasValue ? value : '';
+};
+
+export const setupEditModal = async (book) => {
+    const modal = document.querySelector('.modal-overlay[data-modal="edit-book"]');
+    if (!modal) return;
+
+    const title = modal.querySelector('.edit-book_title');
+    const author = modal.querySelector('.edit-book_author');
+    const cover = modal.querySelector('.edit-book_cover');
+    const noCover = modal.querySelector('.edit-book_no-cover');
+    const tags = modal.querySelector('.edit-book_tags');
+    const annotation = modal.querySelector('.edit-book_book-annotation');
+
+    title.textContent = book.title;
+    author.textContent = book.author;
+
+    tags.innerHTML = [
+        `<div class="tag-age">${book.age}</div>`,
+        book.series ? `<div class="tag-series">${book.series} #${book.seriesNum}</div>` : '',
+        ...book.allGenres.map(g => `<div class="tag-genre">${g}</div>`),
+        ...book.allTropes.map(t => `<div class="tag-trope">${t}</div>`)
+    ].join('');
+
+
+    const hasCover = !!book.cover;
+    toggleBlock(cover, hasCover);
+    toggleBlock(noCover, !hasCover);
+
+    if (hasCover) {
+        cover.src = book.cover;
+    } else {
+        noCover.style.setProperty('--book-hue', book.accentHue);
+        noCover.querySelector('.edit_no-author').textContent = book.author;
+        noCover.querySelector('.edit_no-title').textContent = book.title;
+    }
+
+    setTextBlock(annotation, book.annotation);
+
+    const status = modal.querySelector(`input[name="edit-status"][value="${book.status}"]`);
+    if (status) {
+        status.checked = true;
+        const toggle = modal.querySelector('.status-toggle');
+        const label = modal.querySelector(`label[for="${status.id}"]`);
+
+        updateGliderPosition(toggle, label);
+        toggle.querySelectorAll('label').forEach(l => l.classList.remove('status-active'));
+        label.classList.add('status-active');
+
+        const ratingBlock = modal.querySelector('.book-rating_group');
+        if (ratingBlock) {
+            ratingBlock.classList.toggle('hidden', book.status !== 'completed');
+        }
+
+        if (book.status === 'completed') {
+            setStarRating(modal, book.rating);
+        }
+    }
+
+    const opinion = modal.querySelector('#edit-opinion');
+    const notes = modal.querySelector('#edit-notes');
+    if (opinion) opinion.value = book.opinion || '';
+    if (notes) notes.value = book.notes || '';
+
+
+    const editButtons = modal.querySelectorAll('.edit-book_controls .btn');
+
+    editButtons.forEach(btn => {
+        btn.dataset.id = book.id;
+    });
+};
+</file>
+
+<file path="js/modules/tags-trops.js">
+export const selectedGenres = [];
+export const selectedTropes = [];
+const btnAddGenres = document.querySelector('#add_genre');
+export const listGenre = document.querySelector('.genre');
+const btnAddTropes = document.querySelector('#add_trope');
+export const listTrope = document.querySelector('.trope');
+
+export const addTag = (input, storage, list, itemClass, textClass, deleteClass) => {
+    const value = input.value;
+    if (value.trim()) {
+        storage.push(value);
+        list.classList.remove('hidden');
+        const newBtn = document.createElement("button");
+        newBtn.type = "button";
+        newBtn.className = (itemClass);
+        newBtn.innerHTML = `<span class="${textClass}">${value}</span>
+                        <span class="${deleteClass}">&times;</span>`;
+        const innerList = list.querySelector('.genre, .trope');
+        innerList.append(newBtn);
+        input.value = '';
+    }
+};
+
+export const clickTag = (e, storage, list, activeClass, itemSelector, textSelector, deleteSelector) => {
+    const deleteBtn = e.target.closest(deleteSelector);
+    if (deleteBtn) {
+        const btn = deleteBtn.closest(itemSelector);
+        const text = btn.querySelector(textSelector).textContent;
+        const index = storage.indexOf(text);
+        if (index !== -1) {
+            storage.splice(index, 1);
+        }
+        btn.remove();
+        if (storage.length === 0) {
+            list.parentElement.classList.add('hidden');
+        }
+    } else {
+        const mainBtn = e.target.closest(itemSelector);
+        if (mainBtn) {
+            if (mainBtn.classList.contains(activeClass)) {
+                mainBtn.classList.toggle(activeClass);
+            } else {
+                if (list.querySelectorAll(`.${activeClass}`).length < 2) {
+                    mainBtn.classList.toggle(activeClass);
+                }
+            }
+        }
+    }
+};
+
+
+btnAddGenres.addEventListener('click', () => {
+    const input = document.querySelector('.add-book_new-genre');
+    const container = document.querySelector('.add-genre');
+    addTag(input, selectedGenres, container, 'btn genre-btn tag-genre', 'text-genre', 'delete-genre');
+});
+
+listGenre.addEventListener('click', (e) => {
+    clickTag(e, selectedGenres, listGenre, 'active-genre', '.genre-btn', '.text-genre', '.delete-genre');
+});
+
+
+btnAddTropes.addEventListener('click', () => {
+    const input = document.querySelector('.add-book_new-trope');
+    const container = document.querySelector('.add-trope');
+    addTag(input, selectedTropes, container, 'btn trope-btn tag-trope', 'text-trope', 'delete-trope');
+});
+
+listTrope.addEventListener('click', (e) => {
+    clickTag(e, selectedTropes, listTrope, 'active-trope', '.trope-btn', '.text-trope', '.delete-trope');
+});
+</file>
+
+<file path="css/ui.css">
+/* ==============================
+   @BUTTONS — Основные кнопки
+   ============================== */
+
+.btn_random-book,
+.btn_add-book,
+.btn_change-theme,
+.filter-select,
+.search_filter,
+.btn_login-register {
+  font-family: var(--main-text-font);
+}
+
+.btn_random-book {
+  padding: 9px 20px;
+  color: var(--main_white);
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--accent2), var(--star-active));
+  border-radius: 50px;
+  box-shadow: 0 4px 12px var(--shadow);
+  border: none;
+  min-width: 11rem;
+}
+
+.btn_random-book:hover {
+  transform: translateY(-3px);
+}
+.btn_random-book:active {
+  transform: scale(0.98) translateY(-2px);
+}
+.btn_random-book:focus-visible {
+  outline: 2px solid var(--accent2);
+}
+
+.btn_add-book,
+.btn_change-theme,
+.btn_login-register {
+  color: var(--text2);
+  background-color: var(--bg3);
+  border: 1px solid var(--card-border);
+}
+
+.btn_add-book,
+.btn_login-register {
+  padding: 9px 20px;
+  font-size: 0.85rem;
+  border-radius: 50px;
+  font-weight: 600;
+}
+
+.btn_change-theme {
+  width: 42px;
+  font-size: 1.2rem;
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+}
+
+.btn_add-book:hover,
+.btn_change-theme:hover,
+.btn_login-register:hover {
+  background-color: var(--accent2);
+  color: var(--main_white);
+}
+.btn_add-book:focus-visible,
+.btn_change-theme:focus-visible,
+.btn_login-register:focus-visible {
+  outline: 1px solid var(--card-border);
+}
+
+.btn_add-book:active,
+.btn_change-theme:active,
+.btn_login-register:active {
+  transform: scale(0.98);
+}
+
+/* ==============================
+   @INPUTS — Поля ввода и поиск
+   ============================== */
+
+.search_filter {
+  padding: 11px 16px;
+  color: var(--text);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  font-size: 0.9rem;
+  outline: none;
+  background-color: var(--bg2);
+}
+
+.filter-select {
+  padding: 7px 14px;
+  color: var(--text);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  outline: none;
+  background-color: var(--card);
+
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.search_filter:hover,
+.filter-select:hover {
+  border-color: var(--accent1);
+}
+
+.search_filter:focus {
+  outline: 3px solid var(--card-border);
+  border-color: var(--accent1);
+}
+
+.search_filter::placeholder {
+  color: var(--text3);
+}
+
+.form-input {
+  width: 100%;
+  color: var(--text);
+  font-size: 0.9rem;
+  border: 1px solid var(--card-border);
+  background-color: var(--bg2);
+  border-radius: 12px;
+  font-family: var(--main-text-font);
+  outline: none;
+  transition: border-color 0.2s ease;
+  padding: 12px 16px;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg2) inset;
+  -webkit-text-fill-color: var(--text);
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.form-input--field {
+  padding: 12px 0 12px 16px;
+}
+
+select.form-input--field {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.form-input--textarea {
+  min-height: 80px;
+  resize: none;
+  overflow: auto;
+}
+
+.form-input--tag {
+  padding: 7px 7px 7px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  flex: 1;
+}
+
+/* --- Состояния --- */
+.form-input::placeholder {
+  color: var(--text3);
+}
+
+.form-input:hover {
+  border-color: var(--accent1);
+}
+
+.form-input:focus {
+  outline: 3px solid var(--card-border);
+  border-color: var(--accent1);
+}
+
+/* ==============================
+   @MODAL_UI — Элементы внутри модалок
+   ============================== */
+
+.close-modal {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text2);
+  background-color: var(--bg3);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    transform 0.1s;
+}
+
+.close-modal:hover {
+  background-color: var(--accent2);
+  color: var(--main_white);
+}
+.close-modal:active {
+  transform: scale(0.95);
+}
+
+.book-label {
+  color: var(--text3);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+  display: block;
+}
+
+/* Кнопки действий в модалках */
+
+.btn-primary {
+  font-family: var(--main-text-font);
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid var(--card-border);
+  border-radius: 50px;
+  color: var(--main_white);
+  background: linear-gradient(135deg, var(--accent1), var(--accent3));
+  padding: 10px 22px;
+  box-shadow: 0 4px 15px var(--shadow2);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px var(--shadow2);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-secondary {
+  font-family: var(--main-text-font);
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid var(--card-border);
+  border-radius: 50px;
+  color: var(--text2);
+  background-color: var(--bg3);
+  padding: 10px 18px;
+}
+
+.btn-secondary:hover {
+  background-color: var(--accent2);
+  color: var(--main_white);
+  border-color: var(--accent2);
+}
+
+.btn-secondary:active {
+  transform: scale(0.97);
+}
+
+.btn-delete,
+.btn-confirm-delete {
+  font-family: var(--main-text-font);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--nope);
+  border-radius: 50px;
+  border: 1px solid var(--nope);
+  background-color: var(--bg3);
+  padding: 11px 12px;
+  cursor: pointer;
+}
+
+.btn-save {
+  font-weight: 700;
+  padding: 11px 22px;
+  border: none;
+}
+
+.btn_login,
+.btn_register {
+  width: 100%;
+}
+
+.btn-google {
+  background-color: var(--card);
+  color: var(--text);
+  border: 1px solid var(--card-border);
+  border-radius: 50px;
+  padding: 10px 18px;
+  font-family: var(--main-text-font);
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-google:hover {
+  border-color: var(--accent1);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+  color: var(--text3);
+  font-family: var(--main-text-font);
+  font-size: 0.8rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-color: var(--text3);
+}
+
+.btn_add-tag {
+  font-family: var(--main-text-font);
+  color: var(--main_white);
+  background-color: var(--accent1);
+  padding: 7px 14px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  border: none;
+  outline: none;
+  white-space: nowrap;
+}
+
+.btn_add-tag:hover {
+  background-color: var(--accent3);
+}
+
+.btn-delete:hover,
+.btn-confirm-delete:hover {
+  background-color: var(--nope);
+  color: var(--main_white);
+}
+
+.btn-delete:active,
+.btn-save:active,
+.btn_add-tag:active,
+.btn-confirm-delete:active,
+.btn-google:active {
+  transform: scale(0.97);
+}
+
+.btn-save:hover {
+  box-shadow: 0 6px 20px var(--shadow2);
+  transform: translateY(-2px);
+}
+
+/* Рандом-кнопки (Хочу/Буду/Нет) */
+.btn_random-book_want,
+.btn_random-book_future,
+.btn_random-book_nope {
+  width: 40%;
+  padding: 10px 18px;
+  border-radius: 50px;
+  border: none;
+  outline: none;
+  font-family: var(--main-text-font);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--main_white);
+}
+
+.btn_random-book_want {
+  background-color: var(--want);
+}
+.btn_random-book_future {
+  background-color: var(--future);
+}
+.btn_random-book_nope {
+  background-color: var(--nope);
+}
+
+.btn_random-book_want:hover {
+  background-color: var(--accent3);
+}
+.btn_random-book_future:hover,
+.btn_random-book_nope:hover {
+  opacity: 0.85;
+}
+
+.btn_random-book_want:active,
+.btn_random-book_future:active,
+.btn_random-book_nope:active {
+  transform: scale(0.97);
+}
+
+/* ==============================
+   @TAGS — Теги
+   ============================== */
+
+.tag-age,
+.tag-genre,
+.tag-trope,
+.tag-series {
+  font-family: var(--main-text-font);
+  font-weight: 600;
+  font-size: 0.7rem;
+  padding: 3px 9px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.tag-age {
+  color: var(--text2);
+  background-color: var(--bg3);
+  border: 1px solid var(--card-border);
+}
+.tag-genre {
+  color: var(--tag-genre-text);
+  background-color: var(--tag-genre);
+}
+.tag-trope {
+  color: var(--tag-trope-text);
+  background-color: var(--tag-trope);
+}
+.tag-series {
+  color: var(--main_white);
+  background: linear-gradient(135deg, var(--accent1), var(--accent3));
+}
+
+.genre-btn,
+.trope-btn {
+  font-family: var(--main-text-font);
+  font-size: 0.8rem;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.active-genre {
+  border: 1px solid var(--tag-genre-text);
+}
+.active-trope {
+  border: 1px solid var(--tag-trope-text);
+}
+
+.delete-genre,
+.delete-trope {
+  font-size: 1rem;
+}
+
+.choice-advice {
+  font-family: var(--main-text-font);
+  font-weight: 200;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--text3);
+}
+
+/* ==============================
+   @TOGGLE & RATING — Переключатели
+   ============================== */
+
+.status-toggle {
+  position: relative;
+  display: flex;
+  background-color: var(--bg2);
+  border-radius: 21px;
+  padding: 4px;
+  border: 1px solid var(--card-border);
+  overflow: hidden;
+}
+
+.status-toggle input[type="radio"] {
+  display: none;
+}
+
+.status-toggle label {
+  flex: 1;
+  padding: 3px 0;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text2);
+  position: relative;
+  z-index: 2;
+  transition: color 0.25s ease;
+  user-select: none;
+}
+
+.status-toggle label.status-active {
+  font-weight: 600;
+  color: var(--main_white);
+}
+
+.status-glider {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  height: calc(100% - 8px);
+  width: calc(100% / 5);
+  background-color: var(--accent1);
+  border-radius: 50px;
+  z-index: 1;
+  transition:
+    left 0.3s ease,
+    width 0.3s ease;
+}
+
+.star-rating {
+  display: flex;
+  gap: 6px;
+}
+
+.star-btn {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-size: 1.6rem;
+  color: var(--star);
+  line-height: 1;
+}
+
+.star-active {
+  color: var(--star-active);
+}
+
+.star-btn:hover {
+  transform: scale(1.2);
+  color: var(--star-active);
+}
+
+.star-btn:active {
+  transform: scale(0.9);
+}
+
+/* ==============================
+   @VALIDATION — Ошибки
+   ============================== */
+
+.error-message {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: var(--nope);
+  color: var(--main_white);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 1rem;
+  white-space: nowrap;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.error-message::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  right: 10px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid var(--nope);
+}
+
+.is-invalid .error-message {
+  display: block;
+}
+
+.is-invalid input {
+  border-color: var(--nope) !important;
+}
+
+.star-rating .error-message {
+  position: relative;
+  display: none;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: var(--nope);
+  color: var(--main_white);
+  margin-left: 12px;
+  white-space: nowrap;
+  font-size: 1rem;
+  z-index: 10;
+}
+
+.is-invalid .error-message {
+  display: inline-flex;
+}
+
+.star-rating .error-message::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -5px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 5px solid var(--nope);
+  border-left: none;
+  pointer-events: none;
+}
+</file>
+
+<file path="js/modules/ui-helpers.js">
+const bookCoverInput = document.querySelector('.add-book_cover');
+const imgPreview = document.querySelector('.cover-preview');
+const label = document.querySelector('.add-book_label-cover');
+
+bookCoverInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    const coverText = label.querySelector('.cover-text');
+    console.log('Файл выбран:', file);
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            imgPreview.src = reader.result;
+            imgPreview.classList.remove('hidden');
+            coverText.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    } else {
+        imgPreview.src = "";
+        imgPreview.classList.add('hidden');
+        coverText.classList.remove('hidden');
+    }
+});
+
+export const getBookDesign = () => {
+    const chance = Math.random() * 100;
+    let hue;
+    if (chance < 25) {
+        hue = Math.floor(Math.random() * 40 + 310);
+    } else if (chance < 50) {
+        hue = Math.floor(Math.random() * 50 + 240);
+    } else if (chance < 75) {
+        hue = Math.floor(Math.random() * 40 + 180);
+    } else {
+        hue = Math.floor(Math.random() * 50 + 80);
+    }
+    return hue;
+};
+</file>
+
+<file path="css/forms.css">
+/* @MODAL_ADD_BOOK */
+
+.add-book_title {
+  font-family: var(--main-title-font);
+  font-size: 1.8rem;
+  color: var(--text);
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+
+.add-book_main {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.add-book_list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.add-book_title-book {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.add-book_info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.add-book_text {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.add-book_label-cover {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  border: 1px dashed var(--card-border);
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text3);
+  background-color: var(--bg2);
+  font-family: var(--main-text-font);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+}
+
+.cover-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.new-book_no-cover, .random-book_no-cover, .edit-book_no-cover {
+  --h: var(--book-hue, 280); 
+  background: linear-gradient(135deg, 
+    hsla(var(--h), 70%, 85%, 0.8), 
+    var(--bg2)
+  );
+  color: var(--text); 
+  --title-color: var(--accent1);
+}
+
+html[data-theme="dark"] .new-book_no-cover, html[data-theme="dark"] .random-book_no-cover, html[data-theme="dark"] .edit-book_no-cover {
+  background: linear-gradient(135deg, 
+    hsla(var(--h), 40%, 30%, 0.9), 
+    var(--card)
+  );
+}
+
+.add-book_author-list, .add-book_series-num-list {
+  position: relative;
+}
+
+
+/* @GENRES */ /* @TROPES */
+
+.genre, 
+.trope {
+  flex: 1;
+  padding: 8px 8px 8px 14px;
+  color: var(--text);
+  font-size: 0.9rem;
+  border: 1px dashed var(--card-border);
+  background-color: var(--bg);
+  border-radius: 20px;
+  margin-top: 7px;
+  font-family: var(--main-text-font);
+  gap: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.new-genre, 
+.new-trope {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* @ANNOTATION_AND_STATUS */
+
+.add-book_annotation {
+  display: flex;
+  flex-direction: column;
+}
+
+.status_add-book {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.add-book_rating {
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 36px;
+  position: relative;
+}
+
+.add-book_rating::before {
+  content: "";
+  position: absolute;
+  top: -18px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: var(--card-border);
+}
+
+/* @CONTROLS */
+
+.add-book_controls {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+}
+</file>
+
+<file path="js/modules/library.js">
+import { getAllBooks } from './storage.js';
+
+const updateMyLists = (allBooks) => {
+  const setAuthors = new Set();
+  const setSeries = new Set();
+  const setGenres = new Set();
+  const setTropes = new Set();
+
+  allBooks.forEach((book) => {
+    if (book.author) setAuthors.add(book.author.trim().toLowerCase());
+    if (book.series) setSeries.add(book.series.trim().toLowerCase());
+
+    if (book.allGenres) {
+      book.allGenres.forEach(g => setGenres.add(g.trim().toLowerCase()));
+    }
+    if (book.allTropes) {
+      book.allTropes.forEach(t => setTropes.add(t.trim().toLowerCase()));
+    }
+  });
+
+  const listToUpdate = [
+    { element: document.querySelector('#author-list'), data: setAuthors },
+    { element: document.querySelector('#series-list'), data: setSeries },
+    { element: document.querySelector('#genres-list'), data: setGenres },
+    { element: document.querySelector('#tropes-list'), data: setTropes },
+    { element: document.querySelector('#author_filter'), data: setAuthors, isSelect: true },
+    { element: document.querySelector('#series_filter'), data: setSeries, isSelect: true },
+  ];
+
+  listToUpdate.forEach(({ element, data, isSelect }) => {
+    if (element) {
+      const firstOption = isSelect ? '<option value="all">Все</option>' : '';
+      element.innerHTML = firstOption + Array.from(data).map(val =>
+        isSelect ? `<option value="${val}">${val}</option>` : `<option value="${val}">`
+      ).join('');
+    }
+  });
+
+};
+
+
+export const displayBooks = (books) => {
+  const container = document.querySelector('.book-grid');
+  container.style.opacity = '0';
+
+  setTimeout(() => {
+    if (books.length === 0) {
+      container.innerHTML = `<div class="no-book">
+            <span class="icon">📭</span>Книги не найдены. Добавьте первую!
+        </div>`;
+      container.style.opacity = '1';
+      return;
+    }
+
+    let htmlContent = '';
+    books.forEach((el) => {
+      const displayGenres = (el.mainGenres && el.mainGenres.length > 0) ? el.mainGenres : (el.allGenres && el.allGenres.length > 0) ? el.allGenres.slice(0, 2) : [];
+      const displayTropes = (el.mainTropes && el.mainTropes.length > 0) ? el.mainTropes : (el.allTropes && el.allTropes.length > 0) ? el.allTropes.slice(0, 2) : [];
+
+      let coverContent;
+      if (el.cover) {
+        coverContent = `<img src="${el.cover}" alt="Обложка" class="new-book_cover" />`;
+      } else {
+        const hueValue = typeof el.accentHue === 'string'
+          ? (el.accentHue.match(/\d+/) ? el.accentHue.match(/\d+/)[0] : 280)
+          : (el.accentHue || 280);
+
+        coverContent = `
+        <div class="new-book_no-cover" style="--book-hue: ${hueValue}">
+            <p class="no-cover_title">${el.title}</p>
+            <p class="no-cover_author">${el.author}</p>
+        </div>
+    `;
+      }
+      htmlContent += `<div class="new-book" data-status="${el.status}" data-id="${el.id}" data-modal="edit-book">
+          <div class="new-book_bar"></div>
+          <div class="new-book_main">
+            ${coverContent}
+            <div class="new-book_main-info">
+              <div class="new-book_info">
+                <div class="new-book_text">
+                  <p class="new-book_title">${el.title}</p>
+                  <p class="new-book_author">${el.author}</p>
+                </div>
+                <div class="new-book_tags">
+                  <p class="tag-age new-book_age">${el.age}</p>
+                  ${el.series ? "<p class='tag-series new-book_series'>Серия</p>" : ''}
+                  ${displayGenres.map(g => `<p class="tag-genre new-book_genre">${g}</p>`).join('')}
+                  ${displayTropes.map(t => `<p class="tag-trope new-book_trope">${t}</p>`).join('')}
+                  <p class="new-book_status" data-status="${el.status}">${el.statusText}</p>
+                </div>
+                ${el.rating > 0 ? `
+                <div class="new-book_stars">${'★'.repeat(el.rating)}${'☆'.repeat(5 - el.rating)}</div>` : ''}
+            </div>
+          </div>
+          </div>
+        </div>`;
+    });
+    container.innerHTML = htmlContent;
+    container.style.opacity = '1';
+  }, 200);
+};
+
+export const renderBooks = async () => {
+  const books = await getAllBooks();
+  books.reverse();
+  updateMyLists(books);
+  displayBooks(books);
+};
+</file>
+
+<file path="js/modules/storage.js">
+import { db } from './firebase-init.js';
+import { 
+    doc, 
+    setDoc, 
+    getDocs, 
+    collection, 
+    deleteDoc, 
+    query, 
+    orderBy 
+} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+
+const STORE_NAME = 'books';
+
+export const saveToDB = async (book) => {
+    await setDoc(doc(db, STORE_NAME, String(book.id)), book);
+    return book;
+};
+
+export const getAllBooks = async () => {
+    const q = query(collection(db, STORE_NAME), orderBy("id", "desc"));
+    const querySnapshot = await getDocs(q);
+    
+    const books = [];
+    querySnapshot.forEach((doc) => {
+        books.push(doc.data());
+    });
+    return books;
+};
+
+export const deleteBook = async (id) => {
+    await deleteDoc(doc(db, STORE_NAME, String(id)));
+};
+
+export const updateFullBook = async (updatedBook) => {
+    return await saveToDB(updatedBook);
+};
+
+
+export const updateBookStatus = async (id, newStatus) => {
+    const allBooks = await getAllBooks();
+    const book = allBooks.find(b => b.id === id || String(b.id) === String(id));
+    
+    if (book) {
+        book.status = newStatus;
+
+        const statusTextMap = {
+            'want': 'Хочу',
+            'future': 'Потом',
+            'not-reading': 'Не буду',
+            'reading': 'Читаю',
+            'completed': 'Прочитано',
+        };
+        
+        book.statusText = statusTextMap[newStatus] || newStatus;
+        
+        return await saveToDB(book);
+    }
+};
+</file>
+
+<file path="css/animations.css">
+/* @TRANSITIONS */
+.btn {
+  transition:
+    background-color 0.4s ease,
+    color 0.2s ease,
+    transform 0.25s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.3s ease;
+}
+
+html,
+body {
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease;
+}
+
+button,
+input,
+header,
+.main-control,
+nav {
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+
+.tab-content.hidden {
+    display: none;
+}
+
+.tab-content:not(.hidden) {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+
+.book-grid {
+   transition: opacity 0.3s ease;
+}
+
+.new-book {
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease,
+    border-color 0.4s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.new-book_title,
+.new-book_author,
+.tag-age,
+.tag-series,
+.tag-genre,
+.tag-trope,
+.new-book_status,
+.new-book_stars,
+.new-book_no-cover,
+.border_nav, .btn_add-book, .btn_change-theme, .btn_login-register, .btn_random-book, .filter-select,
+.search_filter, .btn_login {
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease,
+    border-color 0.4s ease,
+    transform 0.2s ease;
+}
+
+.star-btn {
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
+}
+
+/* @BINDINGS */
+.book-rating_group {
+  animation: rating-in 0.3s ease;
+}
+
+.genre-btn,
+.trope-btn {
+  animation: tag-in 0.2s ease;
+}
+
+/* @KEYFRAMES */
+@keyframes tag-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rating-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</file>
+
+<file path="css/modals.css">
+/* ==============================
+   @OVERLAY
+   ============================== */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--modal-bg);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.3s ease,
+    backdrop-filter 0.3s ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ==============================
+   @BASE_STRUCTURE
+   ============================== */
+
+.modal_random-book,
+.modal_edit-book,
+.modal_add-book,
+.modal_confirm-delete,
+.modal_login-register {
+  position: relative;
+  width: 100%;
+  padding: 36px;
+  background-color: var(--card);
+  border-radius: 24px;
+  border: 1px solid var(--card-border);
+  box-shadow: 0 20px 60px var(--shadow2);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal_random-book {
+  max-width: 480px;
+  height: auto;
+  align-self: flex-start;
+  margin: auto;
+}
+
+.modal_edit-book {
+  max-width: 620px;
+}
+
+.modal_confirm-delete {
+  max-width: 350px;
+  padding: 20px;
+}
+
+.modal_add-book {
+  max-width: 620px;
+}
+
+.modal_login-register {
+  max-width: 440px;
+}
+
+/* ==============================
+   @LOGIN-REGISTER
+   ============================== */
+
+.login-register_title {
+  font-family: var(--main-title-font);
+  font-size: 1.8rem;
+  color: var(--text);
+  font-weight: 400;
+  margin-bottom: 6px;
+}
+
+.login-register_hint {
+  font-family: var(--main-text-font);
+  font-size: 0.83rem;
+  margin-bottom: 24px;
+  color: var(--text3);
+}
+
+/* ==============================
+   @RANDOM_BOOK
+   ============================== */
+
+.modal_random-book_none {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.8rem;
+  font-weight: 400;
+  font-family: var(--main-title-font);
+  color: var(--text);
+  text-align: center;
+}
+
+.random-book_main-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.random-book_title {
+  font-family: var(--main-title-font);
+  font-size: 1.8rem;
+  font-weight: 400;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+.random-book_book-info {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+  width: 100%;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.random-book_cover,
+.random-book_no-cover {
+  grid-column: 2;
+  width: 186px;
+  height: 281px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 8px 25px var(--shadow2);
+}
+
+.random-book_no-cover {
+  grid-column: 2;
+  width: 186px;
+  height: 279px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 8px 25px var(--shadow2);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  padding: 35px 10px 10px 10px;
+}
+
+.random-book_tags {
+  grid-column: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.random-book_text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.random-book_book-title {
+  font-family: var(--main-title-font);
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.random-book_book-author,
+.random-book_book-annotation,
+.random-book_series-title,
+.random-book_series-title-book {
+  font-family: var(--main-text-font);
+}
+
+.random-book_book-author {
+  font-size: 0.9rem;
+  color: var(--text3);
+}
+
+.random-book_book-annotation {
+  font-size: 0.83rem;
+  font-weight: 300;
+  color: var(--text2);
+  margin-top: 14px;
+}
+
+/* --- Серии --- */
+
+.random-book_series-group {
+  width: 100%;
+  margin-top: 14px;
+  padding: 18px 0 18px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg2), var(--bg3));
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+}
+
+.random-book_series-title {
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: var(--accent1);
+  margin-bottom: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-style: italic;
+}
+
+.random-book_all-series {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.random-book_series-quantity {
+  display: flex;
+  gap: 8px;
+}
+
+.random-book_series-number {
+  font-family: var(--main-text-font);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 50%;
+  color: var(--main_white);
+  background-color: var(--accent1);
+}
+
+.random-book_main-number {
+  background-color: var(--text3);
+}
+
+.random-book_series-title-book {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text2);
+}
+
+.random-book_main-book {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.random-book_buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* ==============================
+   @EDIT_BOOK
+   ============================== */
+
+.edit-book_main-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.edit-book_cover,
+.edit-book_no-cover {
+  width: 114px;
+  height: 171px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.edit-book_book-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.edit-book_title {
+  font-family: var(--main-title-font);
+  font-size: 1.5rem;
+  color: var(--text);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.edit-book_author {
+  font-family: var(--main-text-font);
+  font-size: 0.85rem;
+  color: var(--text3);
+}
+
+.edit-book_book-annotation {
+  font-family: var(--main-text-font);
+  margin-top: 10px;
+  font-size: 0.85rem;
+  letter-spacing: 150%;
+  color: var(--text2);
+}
+
+.edit-book_tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+/* ==============================
+   @COMPONENTS_WRAPPERS
+   ============================== */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--main-text-font);
+}
+
+.form-group--divided {
+  border-top: 1px solid var(--card-border);
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.form-group--spaced {
+  margin-bottom: 22px;
+}
+
+.login-info,
+.register-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.book-rating_group {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 17px 19px 37px 19px;
+  margin-top: 18px;
+  background-color: var(--bg2);
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+}
+
+.edit-book_controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+/* ==============================
+   @DELETE_MODAL
+   ============================== */
+
+.confirm-delete_text {
+  font-family: var(--main-text-font);
+  font-size: 1rem;
+  color: var(--text);
+  text-align: center;
+}
+
+.confirm-delete_controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.confirm-delete_controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+</file>
+
+<file path="js/modules/status-glider.js">
+export const updateGliderPosition = (toggle, label) => {
+    const glider = toggle.querySelector('.status-glider');
+    const isLoginToggle = !!toggle.closest('.login-register_group');
+    const isVertical = !isLoginToggle && window.getComputedStyle(toggle).flexDirection === 'column';
+
+    if (isVertical) {
+        glider.style.top = (label.offsetTop + 4) + 'px';
+        glider.style.left = '4px';
+        glider.style.height = (label.offsetHeight - 8) + 'px';
+        glider.style.width = '';
+    } else {
+        glider.style.left = label.offsetLeft + 'px';
+        glider.style.width = label.offsetWidth + 'px';
+        glider.style.top = '4px';
+        glider.style.height = '';
+    }
+};
+
+document.addEventListener('change', (e) => {
+    const toggle = e.target.closest('.status-toggle');
+    const modal = e.target.closest('.modal-overlay');
+    if (toggle) {
+        const label = toggle.querySelector(`label[for='${e.target.id}']`);
+        updateGliderPosition(toggle, label);
+
+        const display = modal.querySelector('.add-book_rating, .book-rating_group');
+        display?.classList.toggle('hidden', e.target.value !== 'completed');
+        const statusActive = toggle.querySelector('.status-active');
+        if (statusActive) {
+            statusActive.classList.remove('status-active');
+            label.classList.add('status-active');
+        }
+    }
+});
+
+document.addEventListener('click', (e) => {
+    const star = e.target.closest('.star-btn');
+
+    if (star) {
+        const stars = star.closest('.star-rating');
+        const starsArr = Array.from(stars.querySelectorAll('.star-btn'));
+        const index = starsArr.indexOf(star);
+        starsArr.forEach((item, i) => {
+            if (i <= index) {
+                item.classList.add('star-active');
+            } else {
+                item.classList.remove('star-active');
+            }
+        });
+        stars.dataset.value = index + 1;
+        stars.closest('.add-book_rating')?.classList.remove('is-invalid');
+    }
+});
+
+export const gliderReset = (form) => {
+    const overlay = form.closest('.modal-overlay');
+    const firstLabel = overlay.querySelector('label[for="add-future"]');
+    if (!firstLabel) return;
+
+    const toggle = firstLabel.closest('.status-toggle');
+
+    updateGliderPosition(toggle, firstLabel);
+
+    toggle.querySelectorAll('label').forEach(l => l.classList.remove('status-active'));
+    firstLabel.classList.add('status-active');
+
+    const ratingBlock = overlay.querySelector('.add-book_rating');
+    if (ratingBlock) ratingBlock.classList.add('hidden');
+
+    const starRating = overlay.querySelector('.star-rating');
+    if (starRating) {
+        starRating.querySelectorAll('.star-btn').forEach(btn => btn.classList.remove('star-active'));
+        starRating.dataset.value = 0;
+    }
+};
+
+export const setStarRating = (container, value) => {
+    const starRating = container.querySelector('.star-rating');
+    if (!starRating) return;
+    starRating.querySelectorAll('.star-btn').forEach((star, i) => {
+        star.classList.toggle('star-active', i < value);
+    });
+    starRating.dataset.value = value;
+};
+</file>
+
+<file path="css/books.css">
+/* [CONTENTS]
+  1. @NAVIGATION ..... Переключатели разделов (Все книги, Читаю и т.д.)
+  2. @GRID ........... Сетка и заглушки
+  3. @BOOK_CARD ...... Основная структура карточки
+  4. @BOOK_DETAILS ... Внутреннее наполнение (инфо, теги, статусы)
+*/
+
+/* ==============================
+   @NAVIGATION
+   ============================== */
+.navigation {
+  background-color: var(--bg);
+  padding-top: 32px;
+  padding-bottom: 30px;
+}
+
+.border_nav {
+  display: flex;
+  gap: 50px;
+  justify-content: flex-start;
+  align-items: center;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.navigation_title {
+  font-family: var(--main-title-font);
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--text2);
+  border: none;
+  background-color: transparent;
+  outline: none;
+  cursor: pointer;
+  transition: transform 0.3s ease, color 0.3s ease;
+  display: inline-block;
+  position: relative;
+}
+
+.active_title {
+  color: var(--text);
+  transform: translateY(-10px);
+  cursor: default;
+}
+
+.navigation_title:hover:not(.active_title) {
+  transform: translateY(-3px);
+  color: var(--accent1);
+}
+
+/* ==============================
+   @GRID
+   ============================== */
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 23px;
+  margin-bottom: 40px;
+}
+
+.no-book {
+  grid-column: 1 / -1;
+  font-size: 1rem;
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text3);
+  font-weight: 400;
+  font-family: var(--main-text-font);
+}
+
+.icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  display: block;
+}
+
+/* ==============================
+   @BOOK_CARD
+   ============================== */
+.new-book {
+  background-color: var(--card);
+  border-radius: 16px;
+  display: flex;
+  overflow: clip;
+  overflow-clip-margin: 0;
+  cursor: pointer;
+}
+
+.new-book:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px var(--shadow2);
+} 
+
+
+.new-book_bar {
+  height: 100%;
+  width: 4px;
+  flex-shrink: 0;
+  border-radius: 16px 0 0 16px;
+}
+
+/* Цвета полоски статуса */
+[data-status="completed"] .new-book_bar { background-color: var(--read); }
+[data-status="reading"] .new-book_bar { background-color: var(--reading); }
+[data-status="want"] .new-book_bar { background-color: var(--want); }
+[data-status="future"] .new-book_bar { background-color: var(--future); }
+[data-status="not-reading"] .new-book_bar { background-color: var(--nope); }
+
+.new-book_main {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 14px;
+  padding: 17px 34px 17px 15px;
+  flex: 1;
+}
+
+.new-book_cover, .new-book_no-cover {
+  border-radius: 10px;
+  width: 206px;
+  height: 309px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.new-book_no-cover, .edit-book_no-cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;  
+    text-align: center;
+    padding: 35px 10px 10px 10px;
+}
+
+.edit-book_no-cover {
+  padding: 7px 9px;
+}
+
+.no-cover_title, .edit_no-title {
+  font-family: var(--main-title-font);
+  font-size: 1.7rem;
+  color: var(--no-cover-text);
+  letter-spacing: 0.05em;
+  font-weight: 800;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.no-cover_author, .edit_no-author {
+  font-family: var(--main-text-font);
+  font-weight: 600;
+  color: var(--no-cover-text);
+  font-size: 0.9rem;
+}
+
+.edit_no-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.edit_no-author {
+  font-weight: 400;
+  font-size: 0.6rem;
+}
+
+
+/* ==============================
+   @BOOK_DETAILS
+   ============================== */
+.new-book_info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.new-book_title {
+  font-family: var(--main-title-font);
+  font-size: 1.1rem;
+  color: var(--text);
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.new-book_author {
+  font-family: var(--main-text-font);
+  font-weight: 600;
+  color: var(--text3);
+  font-size: 0.8rem;
+  margin-top: 10px;
+}
+
+.new-book_tags {
+  display: flex;
+  row-gap: 10px;
+  column-gap: 5px;
+  flex-wrap: wrap;
+}
+
+.new-book_status {
+  font-family: var(--main-text-font);
+  font-weight: 600;
+  font-size: 0.7rem;
+  padding: 3px 9px;
+  border-radius: 20px;
+  color: var(--main_white);
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Цвета плашки статуса */
+.new-book_status[data-status="reading"] { background-color: var(--reading); }
+.new-book_status[data-status="future"] { background-color: var(--future); }
+.new-book_status[data-status="not-reading"] { background-color: var(--nope); }
+.new-book_status[data-status="want"] { background-color: var(--want); }
+.new-book_status[data-status="completed"] { background-color: var(--read); }
+
+.new-book_stars {
+  display: flex;
+  gap: 2px;
+  font-size: 0.9rem;
+  color: var(--star-active);
+}
+</file>
+
+<file path="js/main.js">
+import './modules/firebase-init.js';
+import './modules/storage.js';
+import './modules/ui-helpers.js';
+import './modules/addBook.js';
+import './modules/filtres.js';
+import './modules/modals.js';
+import './modules/status-glider.js';
+import './modules/navigation.js';
+import './modules/tags-trops.js';
+import './modules/theme.js';
+import './modules/ui-helpers.js';
+import './modules/filtres.js';
+import './modules/status-glider.js';
+import './modules/tags-trops.js';
+import './modules/randomBook.js';
+import './modules/editBook.js';
+import './modules/storage.js';
+import './modules/library.js';
+
+import { renderBooks } from './modules/library.js';
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js')
+            .then(reg => console.log('SW зарегистрирован!', reg))
+            .catch(err => console.log('Ошибка SW:', err));
+    });
+}
+
+renderBooks();
+</file>
+
+<file path="js/modules/modals.js">
+import { resetForm } from './addBook.js';
+import { getRandomBook } from './randomBook.js';
+import { updateBookStatus, deleteBook, updateFullBook, getAllBooks } from './storage.js';
+import { renderBooks } from './library.js';
+import { updateGliderPosition } from './status-glider.js';
+import { setupEditModal } from './editBook.js';
+
+document.addEventListener('click', async (e) => {
+    const target = e.target;
+    const isCloseBtn = target.closest('.close-modal');
+    const isCancelBtn = target.closest('.btn_add-book_cancel');
+    const isOverlayClick = target.classList.contains('modal-overlay');
+
+    if (isCloseBtn || isCancelBtn || isOverlayClick) {
+        const overlay = isOverlayClick ? target : target.closest('.modal-overlay');
+        if (overlay) {
+            const form = overlay.querySelector('form');
+            if (form) {
+                resetForm(form);
+            } else {
+                setModalState(overlay, false);
+            }
+        }
+        return;
+    }
+
+    const openBtn = e.target.closest('.btn[data-modal]');
+    if (openBtn) {
+        const { modal } = openBtn.dataset;
+
+        if (modal === 'random-book') {
+            getRandomBook();
+        }
+        const overlay = document.querySelector(`.modal-overlay[data-modal="${modal}"]`);
+        if (overlay) setModalState(overlay, true);
+        return;
+    }
+
+    const randomBtn = e.target.closest('.random-book_buttons .btn');
+    if (randomBtn) {
+        randomAction(randomBtn);
+        return;
+    }
+
+    const confirmDeleteBtn = e.target.closest('.btn-confirm-delete');
+    if (confirmDeleteBtn) {
+        const confirmOverlay = confirmDeleteBtn.closest('.modal-overlay');
+        const bookId = +confirmOverlay.dataset.bookId;
+        await deleteBook(bookId);
+        await renderBooks();
+        setModalState(confirmOverlay, false);
+
+        const editOverlay = document.querySelector('.modal-overlay[data-modal="edit-book"]');
+        setModalState(editOverlay, false);
+        return;
+    }
+
+    const confirmCancelBtn = e.target.closest('.btn-confirm-cancel');
+    if (confirmCancelBtn) {
+        const confirmOverlay = confirmCancelBtn.closest('.modal-overlay');
+        setModalState(confirmOverlay, false);
+        return;
+    }
+
+    const editBtn = e.target.closest('.edit-book_controls .btn');
+    if (editBtn) {
+        editAction(editBtn);
+        return;
+    }
+
+    const card = e.target.closest('.new-book[data-modal="edit-book"]');
+    if (card) {
+        const bookId = +card.dataset.id;
+        const allBooks = await getAllBooks();
+        const foundBook = allBooks.find(b => b.id === bookId);
+
+        if (foundBook) {
+            await setupEditModal(foundBook);
+            const overlay = document.querySelector('.modal-overlay[data-modal="edit-book"]');
+            if (overlay) setModalState(overlay, true);
+        }
+    }
+});
+
+export const setModalState = (overlay, isOpen) => {
+    overlay.classList.toggle('open', isOpen);
+    document.body.classList.toggle('modal-open', isOpen);
+
+    if (isOpen) {
+        const toggle = overlay.querySelector('.status-toggle');
+        if (toggle) {
+            const activeInput = toggle.querySelector('input:checked');
+            if (activeInput) {
+                const activeLabel = toggle.querySelector(`label[for="${activeInput.id}"]`);
+                if (activeLabel) {
+                    updateGliderPosition(toggle, activeLabel);
+                }
+            }
+        }
+    }
+
+    if (!isOpen) {
+        overlay.querySelectorAll('.is-invalid').forEach(el => {
+            el.classList.remove('is-invalid');
+        });
+
+        const starRating = overlay.querySelector('.star-rating');
+        if (starRating) {
+            starRating.querySelectorAll('.star-btn').forEach(btn => {
+                btn.classList.remove('star-active');
+            });
+            starRating.dataset.value = 0;
+        }
+    }
+};
+
+const randomAction = async (btn) => {
+    const { action, id } = btn.dataset;
+    const overlay = btn.closest('.modal-overlay');
+    const bookId = Number(id);
+    if (!bookId) return;
+
+    if (action === 'want') {
+        await updateBookStatus(bookId, 'want');
+    } else if (action === 'future') {
+        await updateBookStatus(bookId, 'future');
+    } else {
+        await updateBookStatus(bookId, 'not-reading');
+    }
+    await renderBooks();
+    setModalState(overlay, false);
+};
+
+const editAction = async (btn) => {
+    const { action, id } = btn.dataset;
+    const overlay = btn.closest('.modal-overlay');
+    const bookId = Number(id);
+    if (!bookId) return;
+
+    if (action === 'delete') {
+        const confirmOverlay = document.querySelector('.modal-overlay[data-modal="confirm-delete"]');
+        confirmOverlay.dataset.bookId = bookId;
+        setModalState(confirmOverlay, true);
+        return;
+    } else {
+        const allBooks = await getAllBooks();
+        const book = allBooks.find(b => b.id === bookId);
+
+        if (book) {
+            const newStatus = overlay.querySelector('input[name="edit-status"]:checked').value;
+            const newOpinion = overlay.querySelector('#edit-opinion')?.value || '';
+            const newNotes = overlay.querySelector('#edit-notes')?.value || '';
+            const newRating = Number(overlay.querySelector('.star-rating')?.dataset.value) || 0;
+
+            const statusTextMap = {
+                'want': 'Хочу', 'future': 'Потом', 'not-reading': 'Не буду',
+                'reading': 'Читаю', 'completed': 'Прочитано'
+            };
+
+            const updatedBook = {
+                ...book,
+                status: newStatus,
+                statusText: statusTextMap[newStatus] || newStatus,
+                opinion: newOpinion,
+                notes: newNotes,
+                rating: newRating
+            };
+
+            await updateFullBook(updatedBook);
+        }
+    }
+
+    await renderBooks();
+    setModalState(overlay, false);
+};
+</file>
+
+<file path="css/responsive.css">
+/* ==============================
+   @DESKTOP_SMALL (1224px)
+   ============================== */
+@media screen and (max-width: 1224px) {
+  .book-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .container {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+}
+
+/* ==============================
+   @TABLET (820px)
+   ============================== */
+@media screen and (max-width: 820px) {
+  .filter {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .search_group {
+    grid-column: span 2;
+  }
+
+  .age_group,
+  .series_group {
+    grid-column: 2 / 3;
+    justify-self: end;
+  }
+
+  .new-book_tags {
+    justify-content: center;
+  }
+
+  .main-control {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .btn_random-book {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .no-cover_title {
+    font-size: 0.95rem;
+  }
+
+  .no-cover_author {
+    font-size: 0.6rem;
+  }
+
+  .add-book_info {
+    grid-template-columns: 1fr;
+  }
+
+  .add-book_label-cover {
+    padding-top: 60px;
+    padding-bottom: 60px;
+
+    width: 45%;
+    aspect-ratio: 2 / 3;
+    margin: 0 auto;
+  }
+
+  .modal_random-book,
+  .modal_edit-book,
+  .modal_add-book {
+    padding: 24px;
+  }
+
+  .random-book_cover,
+  .random-book_no-cover {
+    width: 140px;
+    height: 210px;
+  }
+
+  .filter,
+  .search_group,
+  .search_filter {
+    width: 100%;
+  }
+
+  .filter-group {
+    flex: 1;
+    min-width: calc(50% - 12px);
+  }
+
+  .book-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .new-book_info {
+    align-items: center;
+    text-align: center;
+  }
+
+  .new-book {
+    width: 60%;
+  }
+
+  .new-book_cover,
+  .new-book_no-cover {
+    width: 150px;
+    height: 225px;
+  }
+
+  .no-cover_title {
+    font-size: 1.35rem;
+  }
+
+  .no-cover_author {
+    font-size: 0.8rem;
+  }
+
+  .new-book_main {
+    padding: 12px;
+    gap: 10px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Изменение порядка */
+
+  .add-book_main {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .add-book_list {
+    display: contents;
+  }
+
+  .add-book_info {
+    display: contents;
+  }
+
+  .add-book_label-cover {
+    order: 1;
+    margin-bottom: 20px;
+  }
+  .add-book_title-book {
+    order: 2;
+    margin-bottom: 20px;
+  }
+  .add-book_text {
+    order: 3;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .add-book_genres {
+    order: 4;
+    margin-bottom: 20px;
+  }
+  .add-book_trops {
+    order: 5;
+    margin-bottom: 20px;
+  }
+  .add-book_annotation {
+    order: 6;
+    margin-bottom: 20px;
+  }
+  .status-book_group {
+    order: 7;
+  }
+  .add-book_rating {
+    order: 8;
+  }
+  .add-book_controls {
+    order: 9;
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+}
+
+/* ==============================
+   @MOBILE_LARGE (600px)
+   ============================== */
+@media (max-width: 600px) {
+  html {
+    font-size: 17px;
+  }
+
+  .modal_random-book,
+  .modal_edit-book,
+  .modal_add-book {
+    position: relative;
+    width: 100%;
+    padding: 36px;
+    background-color: var(--card);
+    border-radius: 24px;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 20px 60px var(--shadow2);
+    max-height: 80vh;
+  }
+
+  .container {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .header_container {
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .btn_add-book {
+    width: 57%;
+  }
+
+  .control {
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .navigation {
+    padding-top: 22px;
+    padding-bottom: 22px;
+  }
+
+  .border_nav {
+    overflow-x: auto;
+    white-space: nowrap;
+    gap: 25px;
+  }
+
+  .active_title {
+    transform: translateY(-5px);
+  }
+
+  .form-input,
+  .add-book_new-genre,
+  .add-book_new-trope {
+    font-size: 1rem;
+    padding: 10px 0 10px 16px;
+  }
+
+  .title {
+    font-size: 1.4rem;
+  }
+
+  .navigation_title {
+    font-size: 1.2rem;
+  }
+
+  .book-rating_group {
+    gap: 10px;
+    padding: 17px 19px 25px 19px;
+  }
+
+  .star-btn {
+    font-size: 1.6rem;
+    padding: 4px;
+  }
+
+  .star-rating {
+    gap: 0;
+  }
+
+  .random-book_buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .btn_random-book_want,
+  .btn_random-book_future,
+  .btn_random-book_nope {
+    width: 70%;
+  }
+
+  .btn_random-book {
+    font-size: 0.85rem;
+    padding: 10px 16px;
+    white-space: nowrap;
+    min-height: auto;
+    min-width: unset;
+  }
+
+  .filter-label {
+    font-size: 0.7rem;
+  }
+
+  .filter-select,
+  .search_filter {
+    font-size: 0.75rem;
+    padding: 8px 12px;
+  }
+
+  .new-book_main {
+    flex-direction: column;
+    padding: 10px;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .book-grid {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .new-book_info {
+    align-items: center;
+    text-align: center;
+  }
+
+  .main-control {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .new-book_cover,
+  .new-book_no-cover {
+    width: 160px;
+    height: 240px;
+    flex-shrink: 0;
+  }
+
+  .no-cover_title {
+    font-size: 1.15rem;
+  }
+
+  .no-cover_author {
+    font-size: 0.7rem;
+  }
+
+  .new-book_info {
+    flex: 1;
+  }
+
+  .new-book_tags {
+    flex-wrap: wrap;
+    row-gap: 4px;
+    justify-content: center;
+  }
+
+  .new-book_title {
+    font-size: 1rem;
+  }
+
+  .new-book_author {
+    font-size: 0.85rem;
+  }
+
+  .tag-age,
+  .tag-genre,
+  .tag-trope,
+  .tag-series,
+  .new-book_status {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+
+  .btn_add-tag {
+    padding: 9px 14px;
+  }
+
+  .new-book_status,
+  .tag-series {
+    font-weight: 500;
+  }
+
+  .new-book_stars {
+    font-size: 0.75rem;
+  }
+
+  .random-book_title {
+    font-size: 1.4rem;
+    padding-right: 43px;
+    text-align: center;
+  }
+
+  .edit-book_title {
+    font-size: 1.2rem;
+    padding-right: 43px;
+  }
+
+  .add-book_title {
+    font-size: 1.5rem;
+  }
+}
+
+/* ==============================
+   @MOBILE_SMALL (490px)
+   ============================== */
+@media screen and (max-width: 490px) {
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .status-toggle {
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .login-register_group .status-toggle {
+    flex-direction: row;
+    padding: 4px;
+  }
+
+  .status-toggle .status-glider {
+    width: calc(100% - 8px);
+    left: 4px;
+    transition:
+      top 0.3s ease,
+      height 0.3s ease;
+  }
+
+  .login-register_group .status-toggle .status-glider {
+    width: calc(100% / 2);
+    left: 4px;
+    top: 4px;
+    height: calc(100% - 8px);
+    transition:
+      left 0.3s ease,
+      width 0.3s ease;
+  }
+
+  .login-register_group .status-toggle label {
+    padding: 3px 0;
+  }
+
+  .status-glider {
+    width: calc(100% - 8px);
+    transition:
+      top 0.3s ease,
+      height 0.3s ease;
+  }
+
+  .status-toggle label {
+    white-space: nowrap;
+    padding: 8px 0;
+  }
+
+  .title {
+    align-self: center;
+  }
+
+  .active_title {
+    transform: translateY(-5px);
+  }
+
+  .modal_random-book,
+  .modal_edit-book,
+  .modal_add-book {
+    padding: 16px;
+    padding-bottom: 30px;
+  }
+
+  .random-book_tags {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .new-book_cover,
+  .new-book_no-cover {
+    width: 160px;
+    height: 240px;
+    flex-shrink: 0;
+  }
+
+  .close-modal {
+    top: 15px;
+    right: 15px;
+    padding: 12px;
+  }
+
+  .form-input,
+  .add-book_new-genre,
+  .add-book_new-trope {
+    padding: 9px 13px;
+    font-size: 0.9rem;
+  }
+
+  .add-book_label-cover {
+    padding-top: 30px;
+    padding-bottom: 30px;
+    font-size: 0.65rem;
+  }
+
+  .new-genre,
+  .new-trope {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn_add-tag {
+    width: 100%;
+    text-align: center;
+  }
+
+  .add-book_controls {
+    flex-direction: column-reverse;
+    gap: 15px;
+  }
+
+  .confirm-delete_controls {
+    flex-direction: column-reverse;
+  }
+
+  .btn_add-book_cancel,
+  .btn_add-book_add,
+  .btn_login,
+  .btn-save,
+  .btn-delete {
+    width: 100%;
+    text-align: center;
+  }
+
+  .edit-book_controls {
+    flex-direction: column;
+    gap: 10px;
+    flex-direction: column-reverse;
+  }
+
+  .random-book_book-info {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+  }
+}
+</file>
+
+<file path="css/style.css">
+@import url("./variables.css");  
+@import url("./base.css");         
+@import url("./ui.css");          
+@import url("./header.css");      
+@import url("./controls.css");     
+@import url("./books.css");     
+@import url("./modals.css");     
+@import url("./forms.css");       
+@import url("./animations.css");   
+@import url("./responsive.css");   
+@import url("./helpers.css");
+</file>
+
+<file path="index.html">
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        const theme = localStorage.getItem("theme") || "light";
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
+    <title>Книжная полка</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="manifest" href="manifest.json" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Nunito:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="css/style.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <header class="header_container container">
+      <h1 class="title">Книжная <span class="title-accent">полка</span></h1>
+      <div class="control">
+        <button
+          type="button"
+          class="btn btn_login-register"
+          data-modal="login-register"
+        >
+          Вход
+        </button>
+        <button type="button" class="btn btn_add-book" data-modal="add-book">
+          + Добавить книгу
+        </button>
+        <button type="button" class="btn btn_change-theme">🌸</button>
+      </div>
+    </header>
+    <main class="main_container">
+      <div class="main-control container">
+        <div class="filter">
+          <div class="search_group filter-group">
+            <label class="search_label" for="search">🔍</label>
+            <input
+              type="search"
+              id="search"
+              class="search_filter"
+              placeholder="Поиск по названию..."
+            />
+          </div>
+
+          <div class="status_group filter-group">
+            <label class="book-label filter-label" for="status_filter"
+              >статус</label
+            >
+            <select class="filter-select" id="status_filter">
+              <option value="all">Все</option>
+              <option value="reading">Читаю</option>
+              <option value="completed">Прочитано</option>
+              <option value="want">Хочу прочитать</option>
+              <option value="future">На будущее</option>
+              <option value="not-reading">Не буду читать</option>
+            </select>
+          </div>
+          <div class="age_group filter-group">
+            <label class="book-label filter-label" for="age_filter"
+              >возраст</label
+            >
+            <select class="filter-select" id="age_filter">
+              <option value="all">Все</option>
+              <option value="0+">0+</option>
+              <option value="6+">6+</option>
+              <option value="12+">12+</option>
+              <option value="16+">16+</option>
+              <option value="18+">18+</option>
+            </select>
+          </div>
+          <div class="author_group filter-group">
+            <label class="book-label filter-label" for="author_filter"
+              >автор</label
+            >
+            <select class="filter-select" id="author_filter">
+              <option value="all">Все</option>
+            </select>
+          </div>
+          <div class="series_group filter-group">
+            <label class="book-label filter-label" for="series_filter"
+              >серия</label
+            >
+            <select class="filter-select" id="series_filter">
+              <option value="all">Все</option>
+            </select>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn btn_random-book"
+          data-modal="random-book"
+        >
+          ✨ Случайная книга
+        </button>
+      </div>
+
+      <nav class="navigation container">
+        <div class="border_nav">
+          <button
+            type="button"
+            class="navigation_title active_title"
+            id="my-shelf"
+            data-target="book-grid"
+          >
+            Моя полка
+          </button>
+          <button
+            type="button"
+            class="navigation_title"
+            id="all-shelves"
+            data-target="all-shelves"
+          >
+            Все полки
+          </button>
+          <button
+            type="button"
+            class="navigation_title"
+            id="my-room"
+            data-target="my-room"
+          >
+            Моя комната
+          </button>
+        </div>
+      </nav>
+
+      <div id="book-grid-content" class="book-grid container tab-content"></div>
+      <div
+        id="all-shelves-content"
+        class="all-shelves container hidden tab-content"
+      >
+        <div class="shelves-text no-book">В разработке...</div>
+      </div>
+      <div id="my-room-content" class="my-room container hidden tab-content">
+        <div class="room-text no-book">В разработке...</div>
+      </div>
+    </main>
+
+    <div class="modal_group">
+      <!-- Модалка регистрации -->
+      <div class="modal-overlay" data-modal="login-register">
+        <div class="modal_login-register">
+          <button type="button" class="close-modal">
+            <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
+          </button>
+
+          <h3 class="login-register_title">Добро пожаловать</h3>
+          <p class="login-register_hint">Войдите или создайте аккаунт</p>
+
+          <div class="form-group form-group--spaced login-register_group">
+            <div class="status-toggle">
+              <input
+                type="radio"
+                name="login-register"
+                id="login"
+                value="login"
+                checked
+              />
+              <input
+                type="radio"
+                name="login-register"
+                id="register"
+                value="register"
+              />
+
+              <label for="login" class="status-active">Войти</label>
+              <label for="register">Регистрация</label>
+
+              <div class="status-glider"></div>
+            </div>
+            <div class="auth-divider">
+              <span>или</span>
+            </div>
+          <button type="button" class="btn btn-google" id="btn-google">
+              <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                alt="Google"
+                width="18"
+              />
+              Войти через Google
+            </button>
+          </div>
+
+            
+          <div class="login-form">
+            <form class="login" id="login-form">
+              <div class="login-info">
+                <div class="login-email">
+                  <label class="book-label" for="email-login">Email</label>
+                  <input
+                    type="email"
+                    name="email-login"
+                    id="email-login"
+                    placeholder="your@email.com"
+                    class="form-input"
+                  />
+                  <span class="error-message">Введите валидный email</span>
+                </div>
+                <div class="login-password">
+                  <label class="book-label" for="password-login">Пароль</label>
+                  <input
+                    type="password"
+                    name="password-login"
+                    id="password-login"
+                    placeholder="••••••••"
+                    class="form-input"
+                  />
+                  <span class="error-message"
+                    >Неправильный пароль или логин</span
+                  >
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary btn_login">
+                Войти
+              </button>
+            </form>
+          </div>
+          <div class="register-form hidden">
+            <form class="register" id="register-form">
+              <div class="register-info">
+                <div class="register-name">
+                  <label class="book-label" for="email-register">Имя</label>
+                  <input
+                    type="text"
+                    name="text-register"
+                    id="text-register"
+                    placeholder="Ваше имя"
+                    class="form-input"
+                  />
+                </div>
+                <div class="register-email">
+                  <label class="book-label" for="email-register">Email</label>
+                  <input
+                    type="email"
+                    name="email-register"
+                    id="email-register"
+                    placeholder="your@email.com"
+                    class="form-input"
+                  />
+                  <span class="error-message">Введите валидный email</span>
+                </div>
+                <div class="register-password">
+                  <label class="book-label" for="password-register"
+                    >Пароль</label
+                  >
+                  <input
+                    type="password"
+                    name="password-register"
+                    id="password-register"
+                    placeholder="Минимум 6 символов"
+                    class="form-input"
+                    minlength="6"
+                  />
+                  <span class="error-message"
+                    >Неправильный пароль или логин</span
+                  >
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary btn_register">
+                Создать аккаунт
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Модалка случайной книги -->
+      <div class="modal-overlay" data-modal="random-book">
+        <div class="modal_random-book">
+          <button type="button" class="close-modal">
+            <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
+          </button>
+          <div class="modal_random-book_none hidden">Нет книг в библиотеке</div>
+          <div class="modal_random-book_all hidden">
+            <div class="random-book_main-info">
+              <h3 class="random-book_title">✨ Случайная книга</h3>
+              <div class="random-book_book-info">
+                <img
+                  class="random-book_cover hidden"
+                  src=""
+                  alt="Обложка книги"
+                />
+                <div class="random-book_no-cover hidden">
+                  <p class="no-cover_title"></p>
+                  <p class="no-cover_author"></p>
+                </div>
+                <div class="random-book_tags"></div>
+              </div>
+              <div class="random-book_text">
+                <p class="random-book_book-title"></p>
+                <p class="random-book_book-author"></p>
+                <p class="random-book_book-annotation hidden"></p>
+              </div>
+              <div class="random-book_series-group hidden">
+                <p class="random-book_series-title"></p>
+                <ul class="random-book_all-series"></ul>
+              </div>
+            </div>
+            <div class="random-book_buttons">
+              <button
+                type="button"
+                class="btn btn_random-book_want"
+                data-action="want"
+              >
+                💜 Хочу прочитать
+              </button>
+              <button
+                type="button"
+                class="btn btn_random-book_future"
+                data-action="future"
+              >
+                🌟 На будущее
+              </button>
+              <button
+                type="button"
+                class="btn btn_random-book_nope"
+                data-action="nope"
+              >
+                🚫 Не буду читать
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Модалка редактирования книги -->
+      <div class="modal-overlay" data-modal="edit-book">
+        <div class="modal_edit-book">
+          <button type="button" class="close-modal">
+            <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
+          </button>
+          <div class="edit-book_all-info">
+            <div class="edit-book_main-info">
+              <img class="edit-book_cover" src="" alt="Обложка книги" />
+              <div class="edit-book_no-cover hidden">
+                <p class="edit_no-title"></p>
+                <p class="edit_no-author"></p>
+              </div>
+              <div class="edit-book_book-info">
+                <h3 class="edit-book_title"></h3>
+                <p class="edit-book_author"></p>
+                <p class="edit-book_book-annotation"></p>
+              </div>
+            </div>
+            <div class="edit-book_tags"></div>
+            <div class="form-group form-group--divided status-book_group">
+              <label class="book-label">Статус</label>
+              <div class="status-toggle">
+                <input
+                  type="radio"
+                  name="edit-status"
+                  id="edit-future"
+                  value="future"
+                  checked
+                />
+                <input
+                  type="radio"
+                  name="edit-status"
+                  id="edit-reading"
+                  value="reading"
+                />
+                <input
+                  type="radio"
+                  name="edit-status"
+                  id="edit-completed"
+                  value="completed"
+                />
+                <input
+                  type="radio"
+                  name="edit-status"
+                  id="edit-want"
+                  value="want"
+                />
+                <input
+                  type="radio"
+                  name="edit-status"
+                  id="edit-nope"
+                  value="not-reading"
+                />
+
+                <label for="edit-future" class="status-active">Потом</label>
+                <label for="edit-reading">Читаю</label>
+                <label for="edit-completed">Прочитано</label>
+                <label for="edit-want">Хочу</label>
+                <label for="edit-nope">Не буду</label>
+
+                <div class="status-glider"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="book-rating_group hidden">
+            <div class="book-rating-with-stars">
+              <label class="book-label">Рейтинг</label>
+              <div class="star-rating">
+                <button class="star-btn star-active" type="button">★</button>
+                <button class="star-btn star-active" type="button">★</button>
+                <button class="star-btn" type="button">★</button>
+                <button class="star-btn" type="button">★</button>
+                <button class="star-btn" type="button">★</button>
+              </div>
+            </div>
+
+            <div class="book-rating-my-opinion">
+              <label class="book-label">Моё мнение</label>
+              <textarea
+                name="edit-opinion"
+                id="edit-opinion"
+                class="form-input form-input--textarea"
+                placeholder="Что понравилось? Что нет? Кому посоветуете?"
+              ></textarea>
+            </div>
+
+            <div class="book-rating-notes">
+              <label class="book-label">Заметки</label>
+              <textarea
+                name="edit-notes"
+                id="edit-notes"
+                class="form-input form-input--textarea"
+                placeholder="Цитаты, мысли, впечатления..."
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="edit-book_controls">
+            <button type="button" class="btn btn-delete" data-action="delete">
+              🗑 Удалить
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary btn-save"
+              data-action="save"
+            >
+              Сохранить
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Модалка подтверждения удаления -->
+      <div class="modal-overlay" data-modal="confirm-delete">
+        <div class="modal_confirm-delete">
+          <p class="confirm-delete_text">Удалить книгу с полки?</p>
+          <div class="confirm-delete_controls">
+            <button type="button" class="btn btn-secondary btn-confirm-cancel">
+              Отмена
+            </button>
+            <button type="button" class="btn btn-confirm-delete">
+              Удалить
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Модалка добавления книги -->
+      <div class="modal-overlay" data-modal="add-book">
+        <form class="modal_add-book" id="modal_add-book">
+          <button type="button" class="close-modal">
+            <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
+          </button>
+          <h3 class="add-book_title">Новая книга</h3>
+
+          <div class="add-book_main">
+            <div class="add-book_list">
+              <div class="add-book_title-book">
+                <label class="book-label" for="title">Название *</label>
+                <input
+                  type="text"
+                  name="title"
+                  id="title"
+                  placeholder="Название книги"
+                  class="form-input"
+                />
+                <span class="error-message">Введите название книги</span>
+              </div>
+              <div class="add-book_info">
+                <label class="add-book_label-cover" for="add-book_cover"
+                  ><span class="cover-text">Загрузить обложку</span
+                  ><img src="" alt="Preview" class="cover-preview hidden"
+                /></label>
+                <input
+                  type="file"
+                  class="add-book_cover visually-hidden"
+                  accept="image/*"
+                  id="add-book_cover"
+                  name="cover"
+                />
+                <div class="add-book_text">
+                  <div class="add-book_author-list">
+                    <label class="book-label" for="author">Автор *</label>
+                    <input
+                      type="text"
+                      name="author"
+                      id="author"
+                      list="author-list"
+                      class="form-input form-input--field"
+                      placeholder="Имя автора"
+                    />
+                    <span class="error-message">Введите имя автора</span>
+                    <datalist id="author-list"></datalist>
+                  </div>
+                  <div class="add-book_series-list">
+                    <label class="book-label" for="series">Серия / Цикл</label>
+                    <input
+                      type="text"
+                      name="series"
+                      id="series"
+                      list="series-list"
+                      class="form-input form-input--field"
+                      placeholder="Название серии"
+                    />
+                    <datalist id="series-list"></datalist>
+                  </div>
+                  <div class="add-book_series-num-list">
+                    <label class="book-label" for="series-num">№ в серии</label>
+                    <input
+                      type="number"
+                      name="series-num"
+                      id="series-num"
+                      placeholder="Не указано"
+                      class="form-input form-input--field"
+                    />
+                    <span class="error-message">Введите номер серии</span>
+                  </div>
+                  <div class="add-book_age-list">
+                    <label class="book-label" for="age"
+                      >Возрастное ограничение</label
+                    >
+                    <select
+                      id="age"
+                      name="age"
+                      class="form-input form-input--field"
+                    >
+                      <option value="0+">0+</option>
+                      <option value="6+">6+</option>
+                      <option value="12+">12+</option>
+                      <option value="16+">16+</option>
+                      <option value="18+">18+</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="add-book_genres">
+                <label class="book-label" for="genres">Жанры</label>
+                <div class="genres-group">
+                  <div class="new-genre">
+                    <input
+                      type="text"
+                      name="genres"
+                      id="genres"
+                      list="genres-list"
+                      class="form-input form-input--tag"
+                      placeholder="Название жанра"
+                    />
+                    <datalist id="genres-list"></datalist>
+                    <button
+                      type="button"
+                      class="btn btn_add-tag"
+                      id="add_genre"
+                    >
+                      + Добавить
+                    </button>
+                  </div>
+                  <div class="add-genre hidden">
+                    <div class="genre"></div>
+                    <p class="choice-advice">
+                      Выберите 2 основных нажатием на жанр
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="add-book_trops">
+                <label class="book-label" for="tropes">Тропы</label>
+                <div class="trops-group">
+                  <div class="new-trope">
+                    <input
+                      type="text"
+                      name="tropes"
+                      id="tropes"
+                      list="tropes-list"
+                      class="form-input form-input--tag"
+                      placeholder="Название тропа"
+                    />
+                    <datalist id="tropes-list"></datalist>
+                    <button
+                      type="button"
+                      class="btn btn_add-tag"
+                      id="add_trope"
+                    >
+                      + Добавить
+                    </button>
+                  </div>
+                </div>
+                <div class="add-trope hidden">
+                  <div class="trope"></div>
+                  <p class="choice-advice">
+                    Выберите 2 основных нажатием на троп
+                  </p>
+                </div>
+              </div>
+              <div class="add-book_annotation">
+                <label class="book-label" for="annotation">Аннотация</label>
+                <textarea
+                  name="annotation"
+                  id="annotation"
+                  class="form-input form-input--textarea"
+                  placeholder="Краткое описание книги"
+                ></textarea>
+              </div>
+              <div
+                class="form-group form-group--divided status-book_group status_add-book"
+              >
+                <label class="book-label">Статус</label>
+                <div class="status-toggle">
+                  <input
+                    type="radio"
+                    name="add-status"
+                    id="add-future"
+                    value="future"
+                    checked
+                  />
+                  <input
+                    type="radio"
+                    name="add-status"
+                    id="add-reading"
+                    value="reading"
+                  />
+                  <input
+                    type="radio"
+                    name="add-status"
+                    id="add-completed"
+                    value="completed"
+                  />
+
+                  <input
+                    type="radio"
+                    name="add-status"
+                    id="add-want"
+                    value="want"
+                  />
+                  <input
+                    type="radio"
+                    name="add-status"
+                    id="add-nope"
+                    value="not-reading"
+                  />
+
+                  <label for="add-future" class="status-active">Потом</label>
+                  <label for="add-reading">Читаю</label>
+                  <label for="add-completed">Прочитано</label>
+                  <label for="add-want">Хочу</label>
+                  <label for="add-nope">Не буду</label>
+
+                  <div class="status-glider"></div>
+                </div>
+              </div>
+            </div>
+            <div class="book-rating_group add-book_rating hidden">
+              <div class="book-rating-with-stars">
+                <label class="book-label">Рейтинг</label>
+                <div
+                  class="star-rating"
+                  data-value="0"
+                  style="position: relative"
+                >
+                  <button class="star-btn" type="button">★</button>
+                  <button class="star-btn" type="button">★</button>
+                  <button class="star-btn" type="button">★</button>
+                  <button class="star-btn" type="button">★</button>
+                  <button class="star-btn" type="button">★</button>
+
+                  <span class="error-message">Оцените книгу</span>
+                </div>
+              </div>
+
+              <div class="book-rating-my-opinion">
+                <label class="book-label">Моё мнение</label>
+
+                <textarea
+                  name="add-opinion"
+                  id="add-opinion"
+                  placeholder="Что понравилось? Что нет? Кому посоветуете?"
+                  class="form-input form-input--textarea"
+                ></textarea>
+              </div>
+
+              <div class="book-rating-notes">
+                <label class="book-label">Заметки</label>
+
+                <textarea
+                  name="add-notes"
+                  id="add-notes"
+                  placeholder="Цитаты, мысли, впечатления..."
+                  class="form-input form-input--textarea"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="add-book_controls">
+              <button
+                type="button"
+                class="btn btn-secondary btn_add-book_cancel"
+              >
+                Отмена
+              </button>
+              <button type="submit" class="btn btn-primary btn_add-book_add">
+                Добавить на полку
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>
+</file>
+
+</files>

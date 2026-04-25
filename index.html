@@ -12,7 +12,7 @@
     <title>Книжная полка</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json" />
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Nunito:wght@300;400;600;700&display=swap"
       rel="stylesheet"
@@ -24,6 +24,13 @@
     <header class="header_container container">
       <h1 class="title">Книжная <span class="title-accent">полка</span></h1>
       <div class="control">
+        <button
+          type="button"
+          class="btn btn_login-register"
+          data-modal="login-register"
+        >
+          Вход
+        </button>
         <button type="button" class="btn btn_add-book" data-modal="add-book">
           + Добавить книгу
         </button>
@@ -137,6 +144,133 @@
     </main>
 
     <div class="modal_group">
+      <!-- Модалка регистрации -->
+      <div class="modal-overlay" data-modal="login-register">
+        <div class="modal_login-register">
+          <button type="button" class="close-modal">
+            <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
+          </button>
+
+          <h3 class="login-register_title">Добро пожаловать</h3>
+          <p class="login-register_hint">Войдите или создайте аккаунт</p>
+
+          <div class="form-group form-group--spaced login-register_group">
+            <div class="status-toggle">
+              <input
+                type="radio"
+                name="login-register"
+                id="login"
+                value="login"
+                checked
+              />
+              <input
+                type="radio"
+                name="login-register"
+                id="register"
+                value="register"
+              />
+
+              <label for="login" class="status-active">Войти</label>
+              <label for="register">Регистрация</label>
+
+              <div class="status-glider"></div>
+            </div>
+            <div class="auth-divider">
+              <span>или</span>
+            </div>
+          <button type="button" class="btn btn-google" id="btn-google">
+              <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                alt="Google"
+                width="18"
+              />
+              Войти через Google
+            </button>
+          </div>
+
+            
+          <div class="login-form">
+            <form class="login" id="login-form">
+              <div class="login-info">
+                <div class="login-email">
+                  <label class="book-label" for="email-login">Email</label>
+                  <input
+                    type="email"
+                    name="email-login"
+                    id="email-login"
+                    placeholder="your@email.com"
+                    class="form-input"
+                  />
+                  <span class="error-message">Введите валидный email</span>
+                </div>
+                <div class="login-password">
+                  <label class="book-label" for="password-login">Пароль</label>
+                  <input
+                    type="password"
+                    name="password-login"
+                    id="password-login"
+                    placeholder="••••••••"
+                    class="form-input"
+                  />
+                  <span class="error-message"
+                    >Неправильный пароль или логин</span
+                  >
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary btn_login">
+                Войти
+              </button>
+            </form>
+          </div>
+          <div class="register-form hidden">
+            <form class="register" id="register-form">
+              <div class="register-info">
+                <div class="register-name">
+                  <label class="book-label" for="email-register">Имя</label>
+                  <input
+                    type="text"
+                    name="text-register"
+                    id="text-register"
+                    placeholder="Ваше имя"
+                    class="form-input"
+                  />
+                </div>
+                <div class="register-email">
+                  <label class="book-label" for="email-register">Email</label>
+                  <input
+                    type="email"
+                    name="email-register"
+                    id="email-register"
+                    placeholder="your@email.com"
+                    class="form-input"
+                  />
+                  <span class="error-message">Введите валидный email</span>
+                </div>
+                <div class="register-password">
+                  <label class="book-label" for="password-register"
+                    >Пароль</label
+                  >
+                  <input
+                    type="password"
+                    name="password-register"
+                    id="password-register"
+                    placeholder="Минимум 6 символов"
+                    class="form-input"
+                    minlength="6"
+                  />
+                  <span class="error-message"
+                    >Неправильный пароль или логин</span
+                  >
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary btn_register">
+                Создать аккаунт
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
       <!-- Модалка случайной книги -->
       <div class="modal-overlay" data-modal="random-book">
         <div class="modal_random-book">
@@ -216,7 +350,7 @@
               </div>
             </div>
             <div class="edit-book_tags"></div>
-            <div class="status-book_group">
+            <div class="form-group form-group--divided status-book_group">
               <label class="book-label">Статус</label>
               <div class="status-toggle">
                 <input
@@ -279,7 +413,7 @@
               <textarea
                 name="edit-opinion"
                 id="edit-opinion"
-                class="book-textarea"
+                class="form-input form-input--textarea"
                 placeholder="Что понравилось? Что нет? Кому посоветуете?"
               ></textarea>
             </div>
@@ -289,7 +423,7 @@
               <textarea
                 name="edit-notes"
                 id="edit-notes"
-                class="book-textarea"
+                class="form-input form-input--textarea"
                 placeholder="Цитаты, мысли, впечатления..."
               ></textarea>
             </div>
@@ -299,7 +433,11 @@
             <button type="button" class="btn btn-delete" data-action="delete">
               🗑 Удалить
             </button>
-            <button type="button" class="btn btn-save" data-action="save">
+            <button
+              type="button"
+              class="btn btn-primary btn-save"
+              data-action="save"
+            >
               Сохранить
             </button>
           </div>
@@ -311,7 +449,9 @@
         <div class="modal_confirm-delete">
           <p class="confirm-delete_text">Удалить книгу с полки?</p>
           <div class="confirm-delete_controls">
-            <button type="button" class="btn btn-confirm-cancel">Отмена</button>
+            <button type="button" class="btn btn-secondary btn-confirm-cancel">
+              Отмена
+            </button>
             <button type="button" class="btn btn-confirm-delete">
               Удалить
             </button>
@@ -336,7 +476,7 @@
                   name="title"
                   id="title"
                   placeholder="Название книги"
-                  class="add-book_input-title"
+                  class="form-input"
                 />
                 <span class="error-message">Введите название книги</span>
               </div>
@@ -360,7 +500,7 @@
                       name="author"
                       id="author"
                       list="author-list"
-                      class="add-book_field"
+                      class="form-input form-input--field"
                       placeholder="Имя автора"
                     />
                     <span class="error-message">Введите имя автора</span>
@@ -373,7 +513,7 @@
                       name="series"
                       id="series"
                       list="series-list"
-                      class="add-book_field"
+                      class="form-input form-input--field"
                       placeholder="Название серии"
                     />
                     <datalist id="series-list"></datalist>
@@ -385,7 +525,7 @@
                       name="series-num"
                       id="series-num"
                       placeholder="Не указано"
-                      class="add-book_field"
+                      class="form-input form-input--field"
                     />
                     <span class="error-message">Введите номер серии</span>
                   </div>
@@ -393,7 +533,11 @@
                     <label class="book-label" for="age"
                       >Возрастное ограничение</label
                     >
-                    <select id="age" name="age" class="add-book_field">
+                    <select
+                      id="age"
+                      name="age"
+                      class="form-input form-input--field"
+                    >
                       <option value="0+">0+</option>
                       <option value="6+">6+</option>
                       <option value="12+">12+</option>
@@ -412,7 +556,7 @@
                       name="genres"
                       id="genres"
                       list="genres-list"
-                      class="add-book_new-genre"
+                      class="form-input form-input--tag"
                       placeholder="Название жанра"
                     />
                     <datalist id="genres-list"></datalist>
@@ -441,7 +585,7 @@
                       name="tropes"
                       id="tropes"
                       list="tropes-list"
-                      class="add-book_new-trope"
+                      class="form-input form-input--tag"
                       placeholder="Название тропа"
                     />
                     <datalist id="tropes-list"></datalist>
@@ -466,11 +610,13 @@
                 <textarea
                   name="annotation"
                   id="annotation"
-                  class="new-annotation"
+                  class="form-input form-input--textarea"
                   placeholder="Краткое описание книги"
                 ></textarea>
               </div>
-              <div class="status-book_group status_add-book">
+              <div
+                class="form-group form-group--divided status-book_group status_add-book"
+              >
                 <label class="book-label">Статус</label>
                 <div class="status-toggle">
                   <input
@@ -541,7 +687,7 @@
                   name="add-opinion"
                   id="add-opinion"
                   placeholder="Что понравилось? Что нет? Кому посоветуете?"
-                  class="book-textarea"
+                  class="form-input form-input--textarea"
                 ></textarea>
               </div>
 
@@ -552,16 +698,19 @@
                   name="add-notes"
                   id="add-notes"
                   placeholder="Цитаты, мысли, впечатления..."
-                  class="book-textarea"
+                  class="form-input form-input--textarea"
                 ></textarea>
               </div>
             </div>
 
             <div class="add-book_controls">
-              <button type="button" class="btn btn_add-book_cancel">
+              <button
+                type="button"
+                class="btn btn-secondary btn_add-book_cancel"
+              >
                 Отмена
               </button>
-              <button type="submit" class="btn btn_add-book_add">
+              <button type="submit" class="btn btn-primary btn_add-book_add">
                 Добавить на полку
               </button>
             </div>

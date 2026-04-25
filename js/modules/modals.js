@@ -1,4 +1,4 @@
-import { resetForm } from './form.js';
+import { resetForm } from './addBook.js';
 import { getRandomBook } from './randomBook.js';
 import { updateBookStatus, deleteBook, updateFullBook, getAllBooks } from './storage.js';
 import { renderBooks } from './library.js';
