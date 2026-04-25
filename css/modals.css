@@ -350,6 +350,15 @@
   margin-bottom: 18px;
 }
 
+.login-email,
+.login-password,
+.register-email,
+.register-password,
+.register-password-copy {
+  position: relative;
+}
+
+
 .book-rating_group {
   display: flex;
   flex-direction: column;

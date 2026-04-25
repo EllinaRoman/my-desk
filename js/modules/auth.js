@@ -73,6 +73,13 @@ const formRegister = document.querySelector('.register');
 
 formRegister.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const { 'email-register': email, 'password-register': password } = e.target.elements;
+    const { 'email-register': email, 'password-register': password, 'password-register-copy': passwordCopy } = e.target.elements;
+
+    if (password.value !== passwordCopy.value) {
+        const copyDiv = formRegister.querySelector('.register-password-copy');
+        copyDiv.classList.add('is-invalid');
+        return;
+    }
+
     await registerUser(email.value, password.value)
 });

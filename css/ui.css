@@ -572,6 +572,21 @@ select.form-input--field {
   border-bottom: 5px solid var(--nope);
 }
 
+.login-form .error-message,
+.register-form .error-message {
+  top: auto;
+  bottom: 69%;
+}
+
+.login-form .error-message::before,
+.register-form .error-message::before {
+  top: auto;
+  bottom: -4px;
+  border-top: 5px solid var(--nope);
+  border-bottom: none;
+}
+
+
 .is-invalid .error-message {
   display: block;
 }
@@ -592,10 +607,6 @@ select.form-input--field {
   white-space: nowrap;
   font-size: 1rem;
   z-index: 10;
-}
-
-.is-invalid .error-message {
-  display: inline-flex;
 }
 
 .star-rating .error-message::before {

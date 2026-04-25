@@ -3,44 +3,51 @@ import { displayBooks } from './library.js';
 
 const searchInput = document.querySelector('#search');
 
+const activeFilters = {
+    status: 'all',
+    author: 'all',
+    age: 'all',
+    series: 'all',
+    title: ''
+};
+
+const fieldMap = {
+    'status_filter': 'status',
+    'author_filter': 'author',
+    'age_filter': 'age',
+    'series_filter': 'series',
+};
+
+const applyFilters = (allBooks) => {
+    let result = allBooks;
+
+
+    Object.entries(fieldMap).forEach(([, bookField]) => {
+        if (activeFilters[bookField] !== 'all') {
+            result = result.filter(book => book[bookField]?.toLowerCase() === activeFilters[bookField].toLowerCase())
+        }
+    })
+
+    if (activeFilters.title) {
+        result = result.filter(book => book.title?.toLowerCase().includes(activeFilters.title));
+    }
+
+    displayBooks(result);
+}
+
 document.addEventListener('change', async (e) => {
     const allBooks = await getAllBooks();
+    const filterKey = fieldMap[e.target.id];
 
-    const fieldMap = {
-        'status_filter': 'status',
-        'author_filter': 'author',
-        'age_filter': 'age',
-        'series_filter': 'series',
-    };
-
-    const field = fieldMap[e.target.id];
-
-    if (field) {
-        filterRun(allBooks, field, e.target.value);
+    if (filterKey) {
+        activeFilters[filterKey] = e.target.value;
+        applyFilters(allBooks);
     }
 });
 
 searchInput.addEventListener('input', async (e) => {
     const allBooks = await getAllBooks();
-    const value = e.target.value.toLowerCase().trim();
-    const field = 'title';
-    if (value) {
-        filterRun(allBooks, field, value, false);
-    } else {
-        displayBooks(allBooks);
-    }
+    
+    activeFilters.title = e.target.value.toLowerCase().trim();
+    applyFilters(allBooks);
 });
-
-const filterRun = (allBooks, field, value, exact = true) => {
-    if (value === "all") {
-        displayBooks(allBooks);
-    }
-    else {
-        const newBooks = allBooks.filter(book =>
-            exact
-                ? book[field]?.toLowerCase() === value.toLowerCase()
-                : book[field]?.toLowerCase().includes(value.toLowerCase())
-        );
-        displayBooks(newBooks);
-    }
-};
