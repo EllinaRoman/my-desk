@@ -1,12 +1,12 @@
 const CACHE_NAME = 'my-shelf-v1';
 const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './css/style.css',
+  // './',
+  // './index.html',
+  // './css/style.css',
   './manifest.json',
   './img/icon-192.png',
-  './img/icon-512.png',
-  './js/main.js'
+  './img/icon-512.png'
+  // './js/main.js'
 ];
 
 
