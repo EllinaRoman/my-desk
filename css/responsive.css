@@ -87,7 +87,6 @@
 
   .filter-group {
     flex: 1;
-    min-width: calc(50% - 12px);
   }
 
   .book-grid {

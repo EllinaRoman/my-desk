@@ -88,6 +88,13 @@
   background-color: var(--bg2);
 }
 
+.search_label {
+  fill: var(--text);
+  width: 20px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+}
+
 .filter-select {
   padding: 7px 14px;
   color: var(--text);
