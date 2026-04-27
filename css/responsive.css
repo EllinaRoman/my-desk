@@ -26,7 +26,7 @@
   }
 
   .age_group,
-  .series_group {
+  .series_group, .tropes_group {
     grid-column: 2 / 3;
     justify-self: end;
   }

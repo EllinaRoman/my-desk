@@ -8,6 +8,8 @@ const activeFilters = {
     author: 'all',
     age: 'all',
     series: 'all',
+    genres: 'all',
+    tropes: 'all',
     title: ''
 };
 
@@ -16,15 +18,22 @@ const fieldMap = {
     'author_filter': 'author',
     'age_filter': 'age',
     'series_filter': 'series',
+    'genres_filter': 'genre',
+    'tropes_filter': 'trope'
 };
 
 const applyFilters = (allBooks) => {
     let result = allBooks;
 
-
-    Object.entries(fieldMap).forEach(([, bookField]) => {
-        if (activeFilters[bookField] !== 'all') {
-            result = result.filter(book => book[bookField]?.toLowerCase() === activeFilters[bookField].toLowerCase());
+    Object.entries(fieldMap).forEach(([_, filterKey]) => {
+        const filterValue = activeFilters[filterKey];
+        if (filterValue !== 'all') {
+            if (filterKey === 'genre' || filterKey === 'trope') {
+                const bookField = filterKey === 'genre' ? 'allGenres' : 'allTropes';
+                result = result.filter(book => book[bookField]?.some(item => item.toLowerCase() === filterValue.toLowerCase()));
+            } else {
+                result = result.filter(book => book[filterKey]?.toLowerCase() === filterValue.toLowerCase());
+            }
         }
     });
 
@@ -47,7 +56,7 @@ document.addEventListener('change', async (e) => {
 
 searchInput.addEventListener('input', async (e) => {
     const allBooks = await getAllBooks();
-    
+
     activeFilters.title = e.target.value.toLowerCase().trim();
     applyFilters(allBooks);
 });

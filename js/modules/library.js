@@ -7,14 +7,14 @@ const updateMyLists = (allBooks) => {
   const setTropes = new Set();
 
   allBooks.forEach((book) => {
-    if (book.author) setAuthors.add(book.author.trim().toLowerCase());
-    if (book.series) setSeries.add(book.series.trim().toLowerCase());
+    if (book.author) setAuthors.add(book.author.trim());
+    if (book.series) setSeries.add(book.series.trim());
 
     if (book.allGenres) {
-      book.allGenres.forEach(g => setGenres.add(g.trim().toLowerCase()));
+      book.allGenres.forEach(g => setGenres.add(g.trim()));
     }
     if (book.allTropes) {
-      book.allTropes.forEach(t => setTropes.add(t.trim().toLowerCase()));
+      book.allTropes.forEach(t => setTropes.add(t.trim()));
     }
   });
 
@@ -25,6 +25,8 @@ const updateMyLists = (allBooks) => {
     { element: document.querySelector('#tropes-list'), data: setTropes },
     { element: document.querySelector('#author_filter'), data: setAuthors, isSelect: true },
     { element: document.querySelector('#series_filter'), data: setSeries, isSelect: true },
+    { element: document.querySelector('#genres_filter'), data: setGenres, isSelect: true },
+    { element: document.querySelector('#tropes_filter'), data: setTropes, isSelect: true }
   ];
 
   listToUpdate.forEach(({ element, data, isSelect }) => {
