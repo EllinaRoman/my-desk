@@ -1,6 +1,5 @@
-import { getBookDesign } from './ui-helpers.js';
-import { selectedGenres, selectedTropes } from './tags-trops.js';
-import { listGenre, listTrope } from './tags-trops.js';
+import { getBookDesign, compressImage } from './ui-helpers.js';
+import { selectedGenres, selectedTropes, listGenre, listTrope } from './tags-trops.js';
 import { getAllBooks, saveToDB } from './storage.js';
 import { gliderReset } from './status-glider.js';
 import { renderBooks } from './library.js';
@@ -96,8 +95,10 @@ formAddBook.addEventListener('submit', async (e) => {
         const file = cover.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = () => {
-                saveBook(reader.result);
+            reader.onload = async () => {
+                const rawBase64 = reader.result;
+                const compressedBase64 = await compressImage(rawBase64);
+                saveBook(compressedBase64);
             };
             reader.readAsDataURL(file);
         } else {

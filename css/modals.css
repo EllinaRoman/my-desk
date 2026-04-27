@@ -233,6 +233,8 @@
 .random-book_series-quantity {
   display: flex;
   gap: 8px;
+  justify-content: space-around;
+  align-items: center;
 }
 
 .random-book_series-number {
@@ -357,7 +359,6 @@
 .register-password-copy {
   position: relative;
 }
-
 
 .book-rating_group {
   display: flex;

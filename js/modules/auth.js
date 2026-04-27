@@ -5,7 +5,8 @@ import {
     signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
 
-import { auth, googleProvider } from './firebase-init.js';
+import { auth, googleProvider, onAuthStateChanged } from './firebase-init.js';
+import { setModalState } from './modals.js';
 
 const registerUser = async (email, password) => {
         await createUserWithEmailAndPassword(auth, email, password);
@@ -26,6 +27,35 @@ const logoutUser = async () => {
 
 export { registerUser, loginUser, logoutUser, loginWithGoogle };
 
+const authButton = document.querySelector('.btn_login-register');
+const loginOverlay = document.querySelector('.modal-overlay[data-modal="login-register"]');
+
+const updateAuthButton = (user) => {
+    if (!authButton) return;
+
+    if (user) {
+        authButton.textContent = 'Выйти';
+        authButton.removeAttribute('data-modal');
+    } else {
+        authButton.textContent = 'Вход';
+        authButton.dataset.modal = 'login-register';
+    }
+};
+
+onAuthStateChanged(auth, (user) => {
+    updateAuthButton(user);
+    if (user && loginOverlay && loginOverlay.classList.contains('open')) {
+        setModalState(loginOverlay, false);
+    }
+});
+
+if (authButton) {
+    authButton.addEventListener('click', async (e) => {
+        if (!auth.currentUser) return;
+        e.preventDefault();
+        await logoutUser();
+    });
+}
 
 const btnGoogle = document.querySelector('#btn-google');
 

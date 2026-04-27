@@ -13,6 +13,7 @@ import './modules/randomBook.js';
 import './modules/editBook.js';
 
 import { renderBooks } from './modules/library.js';
+import { subscribeToAuthChanges } from './modules/storage.js';
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -22,6 +23,8 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-renderBooks();
+subscribeToAuthChanges(async () => {
+    await renderBooks();
+});
 
 
