@@ -1,4 +1,3 @@
-import { db } from './firebase-init.js';
 import { 
     doc, 
     setDoc, 
@@ -8,8 +7,15 @@ import {
     query, 
     orderBy 
 } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+import { db, auth, onAuthStateChanged } from './firebase-init.js';
+export let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+})
 
 const STORE_NAME = 'books';
+
 
 export const saveToDB = async (book) => {
     await setDoc(doc(db, STORE_NAME, String(book.id)), book);

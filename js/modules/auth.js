@@ -110,6 +110,22 @@ formLogin.addEventListener('submit', async (e) => {
     }
 });
 
+document.querySelectorAll('.eye-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const parent = btn.closest('.js-password');
+        const input = parent.querySelector('input');
+
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+
+        const openIcon = btn.querySelector('.bi-eye');
+        const closedIcon = btn.querySelector('.bi-eye-slash');
+
+        openIcon.classList.toggle('hidden');
+        closedIcon.classList.toggle('hidden');
+    });
+});
+
 formRegister.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = e.target.elements['email-register'];
@@ -117,7 +133,7 @@ formRegister.addEventListener('submit', async (e) => {
     const passwordCopy = e.target.elements['password-register-copy'];
 
     if (password.value !== passwordCopy.value) {
-        showError(formRegister, '.register-password-copy');
+        showError(formRegister, '.register-password-copy', 'Пароли не совпадают');
         return;
     }
 
@@ -135,7 +151,15 @@ formRegister.addEventListener('submit', async (e) => {
         }
 
         if (error.code === 'auth/weak-password') {
-            showError(formRegister, '.register-password');
+            showError(formRegister, '.register-password', 'Пароль слишком короткий');
         }
     }
+});
+
+const confirmInput = formRegister.querySelector('.register-password-copy');
+['paste', 'drop'].forEach(eventType => {
+    confirmInput.addEventListener(eventType, (e) => {
+        e.preventDefault();
+        showError(formRegister, '.register-password-copy', 'Введите пароль вручную');
+    });
 });

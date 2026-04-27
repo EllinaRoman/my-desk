@@ -586,6 +586,24 @@ select.form-input--field {
   border-bottom: none;
 }
 
+.eye-toggle {
+  position: absolute;
+  right: 20px;
+  top: 53%;
+
+  border: none;
+  outline: none;
+
+  fill: var(--text3);
+  width: 20px;
+  aspect-ratio: 1 / 1;
+  transition: fill 0.3s ease;
+  cursor: pointer;
+}
+
+.eye-toggle:hover {
+  fill: var(--text2);
+}
 
 .is-invalid .error-message {
   display: block;
