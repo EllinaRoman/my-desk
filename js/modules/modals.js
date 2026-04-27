@@ -152,6 +152,13 @@ const editAction = async (btn) => {
             const newNotes = overlay.querySelector('#edit-notes')?.value || '';
             const newRating = Number(overlay.querySelector('.star-rating')?.dataset.value) || 0;
 
+            const ratingBlock = overlay.querySelector('.book-rating_group');
+
+            if (newStatus === 'completed' && newRating === 0) {
+                ratingBlock?.classList.add('is-invalid');
+                return;
+            }
+
             const statusTextMap = {
                 'want': 'Хочу', 'future': 'Потом', 'not-reading': 'Брошено',
                 'reading': 'Читаю', 'completed': 'Прочитано'
@@ -163,7 +170,7 @@ const editAction = async (btn) => {
                 statusText: statusTextMap[newStatus] || newStatus,
                 opinion: newOpinion,
                 notes: newNotes,
-                rating: newRating
+                rating: newStatus === 'completed' ? newRating : 0
             };
 
             await updateFullBook(updatedBook);

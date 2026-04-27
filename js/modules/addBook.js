@@ -25,7 +25,7 @@ const toggleError = (input, isValid, message = '') => {
 formAddBook.addEventListener('submit', async (e) => {
     e.preventDefault();
     const { title, author, cover, series, 'series-num': num } = e.target.elements;
-    const starRating = document.querySelector('.star-rating');
+    const starRating = formAddBook.querySelector('.star-rating');
     const ratingValue = +starRating.dataset.value || 0;
     const status = new FormData(formAddBook).get('add-status');
 

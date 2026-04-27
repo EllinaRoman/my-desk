@@ -197,6 +197,7 @@
   font-weight: 300;
   color: var(--text2);
   margin-top: 14px;
+  text-align: justify;
 }
 
 /* --- Серии --- */
@@ -233,7 +234,6 @@
 .random-book_series-quantity {
   display: flex;
   gap: 8px;
-  justify-content: space-around;
   align-items: center;
 }
 

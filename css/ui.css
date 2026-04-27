@@ -617,6 +617,10 @@ select.form-input--field {
   display: block;
 }
 
+.is-invalid .star-rating .error-message {
+  display: inline-flex;
+}
+
 .is-invalid input {
   border-color: var(--nope) !important;
 }

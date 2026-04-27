@@ -62,7 +62,7 @@ export const setupEditModal = async (book) => {
         }
 
         if (book.status === 'completed') {
-            setStarRating(modal, book.rating);
+            setStarRating(modal, book.rating || 0);
         }
     }
 

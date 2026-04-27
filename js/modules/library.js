@@ -91,7 +91,7 @@ export const displayBooks = (books) => {
                   ${displayTropes.map(t => `<p class="tag-trope new-book_trope">${t}</p>`).join('')}
                   <p class="new-book_status" data-status="${el.status}">${el.statusText}</p>
                 </div>
-                ${el.rating > 0 ? `
+                ${el.status === 'completed' && el.rating > 0 ? `
                 <div class="new-book_stars">${'★'.repeat(el.rating)}${'☆'.repeat(5 - el.rating)}</div>` : ''}
             </div>
           </div>

@@ -25,6 +25,9 @@ document.addEventListener('change', (e) => {
 
         const display = modal.querySelector('.add-book_rating, .book-rating_group');
         display?.classList.toggle('hidden', e.target.value !== 'completed');
+        if (e.target.value !== 'completed') {
+            display?.classList.remove('is-invalid');
+        }
         const statusActive = toggle.querySelector('.status-active');
         if (statusActive) {
             statusActive.classList.remove('status-active');
@@ -48,7 +51,7 @@ document.addEventListener('click', (e) => {
             }
         });
         stars.dataset.value = index + 1;
-        stars.closest('.add-book_rating')?.classList.remove('is-invalid');
+        stars.closest('.add-book_rating, .book-rating_group')?.classList.remove('is-invalid');
     }
 });
 
