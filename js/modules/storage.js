@@ -52,7 +52,7 @@ export const updateBookStatus = async (id, newStatus) => {
         const statusTextMap = {
             'want': 'Хочу',
             'future': 'Потом',
-            'not-reading': 'Не буду',
+            'not-reading': 'Брошено',
             'reading': 'Читаю',
             'completed': 'Прочитано',
         };

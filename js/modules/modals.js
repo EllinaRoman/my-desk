@@ -153,7 +153,7 @@ const editAction = async (btn) => {
             const newRating = Number(overlay.querySelector('.star-rating')?.dataset.value) || 0;
 
             const statusTextMap = {
-                'want': 'Хочу', 'future': 'Потом', 'not-reading': 'Не буду',
+                'want': 'Хочу', 'future': 'Потом', 'not-reading': 'Брошено',
                 'reading': 'Читаю', 'completed': 'Прочитано'
             };
 

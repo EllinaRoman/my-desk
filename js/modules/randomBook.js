@@ -17,7 +17,7 @@ export const getRandomBook = async () => {
     const content = document.querySelector('.modal_random-book_all');
 
     const books = allBooks.filter(book =>
-        book.status !== 'completed' && book.status !== 'reading'
+        book.status !== 'completed' && book.status !== 'reading' && book.status !== 'not-reading'
     );
 
     const hasBooks = books.length > 0;
