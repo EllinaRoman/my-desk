@@ -1,5 +1,5 @@
 import { getBookDesign, compressImage } from './ui-helpers.js';
-import { selectedGenres, selectedTropes, listGenre, listTrope } from './tags-trops.js';
+import { selectedGenres, selectedTropes, listGenre, listTrope } from './tags.js';
 import { getAllBooks, saveToDB } from './storage.js';
 import { gliderReset } from './status-glider.js';
 import { renderBooks } from './library.js';
