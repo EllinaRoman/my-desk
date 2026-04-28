@@ -5,7 +5,6 @@ const label = document.querySelector('.add-book_label-cover');
 bookCoverInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     const coverText = label.querySelector('.cover-text');
-    console.log('Файл выбран:', file);
     if (file) {
         const reader = new FileReader();
         reader.onload = () => {

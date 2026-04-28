@@ -317,7 +317,6 @@
   font-family: var(--main-title-font);
   font-size: 1.5rem;
   font-weight: 600;
-  margin-bottom: 8px;
 
   display: inline;
   margin-right: 7px;
@@ -327,11 +326,12 @@
   font-family: var(--main-text-font);
   font-size: 0.85rem;
   color: var(--text3);
+  margin-top: 5px;
 }
 
 .edit-book_book-annotation {
   font-family: var(--main-text-font);
-  margin-top: 10px;
+  margin-top: 3px;
   font-size: 0.85rem;
   color: var(--text2);
   text-align: justify;

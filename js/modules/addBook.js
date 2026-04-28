@@ -1,6 +1,6 @@
 import { getBookDesign, compressImage } from './ui-helpers.js';
 import { selectedGenres, selectedTropes, listGenre, listTrope } from './tags.js';
-import { getAllBooks, saveToDB } from './storage.js';
+import { getAllBooks, saveToDB, updateFullBook } from './storage.js';
 import { gliderReset } from './status-glider.js';
 import { renderBooks } from './library.js';
 import { setModalState } from './modals.js';
@@ -39,17 +39,19 @@ formAddBook.addEventListener('submit', async (e) => {
     const numValue = num.value.trim();
     let newAnnotation = null;
 
+    const editId = formAddBook.closest('.modal-overlay').dataset.editId;
+    const overlay = formAddBook.closest('.modal-overlay');
+
     if (seriesValue) {
         if (!numValue || +numValue <= 0) {
             isValid = toggleError(num, false, !numValue ? 'Введите номер серии' : 'Номер должен быть > 0');
         } else {
             const allBooks = await getAllBooks();
-            const isDuplicate = allBooks.some(book => book.series?.toLowerCase() === seriesValue.toLowerCase() && book.seriesNum === +numValue);
+            const isDuplicate = allBooks.some(book => book.series?.toLowerCase() === seriesValue.toLowerCase() && book.seriesNum === +numValue && String(book.id) !== String(editId));
             if (isDuplicate) {
                 isValid = toggleError(num, false, 'Номер уже занят');
                 return;
             }
-
             if (numValue > 1) {
                 const firstBook = allBooks.find(book => book.series?.toLowerCase() === seriesValue.toLowerCase() && book.seriesNum === 1);
                 if (firstBook) {
@@ -75,8 +77,9 @@ formAddBook.addEventListener('submit', async (e) => {
         }
 
         const saveBook = async (coverData) => {
+
             const newBook = {
-                id: Date.now(),
+                id: editId ? +editId : Date.now(),
                 title: title.value.trim(),
                 author: author.value.trim(),
                 series: formData.get('series'),
@@ -86,7 +89,7 @@ formAddBook.addEventListener('submit', async (e) => {
                 status,
                 statusText: document.querySelector(`label[for="${formAddBook.querySelector('input[name="add-status"]:checked').id}"]`).textContent.trim(),
                 cover: coverData,
-                accentHue: coverData ? null : getBookDesign(),
+                accentHue: coverData ? null : (editId ? (overlay.dataset.originalHue || getBookDesign()) : getBookDesign()),
                 allGenres: [...selectedGenres],
                 allTropes: [...selectedTropes],
                 mainGenres: Array.from(listGenre.querySelectorAll('.active-genre'))
@@ -99,7 +102,11 @@ formAddBook.addEventListener('submit', async (e) => {
             };
 
             try {
-                await saveToDB(newBook);
+                if (editId) {
+                    await updateFullBook(newBook);
+                } else {
+                    await saveToDB(newBook);
+                }
                 renderBooks();
             } catch (err) {
                 console.error('Ошибка при сохранении в базу:', err);
@@ -117,7 +124,8 @@ formAddBook.addEventListener('submit', async (e) => {
             };
             reader.readAsDataURL(file);
         } else {
-            saveBook(null);
+            const existingCover = editId ? (overlay.dataset.originalCover || null) : null;
+            saveBook(existingCover);
         }
     }
 });
@@ -131,9 +139,17 @@ export const resetForm = (form) => {
     const overlay = form.closest('.modal-overlay');
     const label = overlay?.querySelector('.add-book_label-cover');
 
+    const modalTitle = overlay?.querySelector('.add-book_title');
+    const modalAddBtn = overlay?.querySelector('.btn_add-book_add');
+    if (modalTitle) modalTitle.textContent = 'Новая книга';
+    if (modalAddBtn) modalAddBtn.textContent = 'Добавить на полку';
+
 
     if (overlay) {
         const imgPreview = overlay?.querySelector('.cover-preview');
+        overlay.dataset.editId = '';
+        overlay.dataset.mode = '';
+
         if (imgPreview) {
             imgPreview.src = '';
             imgPreview.classList.add('hidden');
@@ -149,8 +165,8 @@ export const resetForm = (form) => {
         }
     }
 
-    if (typeof selectedGenres !== 'undefined') selectedGenres.length = 0;
-    if (typeof selectedTropes !== 'undefined') selectedTropes.length = 0;
+    selectedGenres.length = 0;
+    selectedTropes.length = 0;
 
     const lists = [
         { el: typeof listGenre !== 'undefined' ? listGenre : null },

@@ -3,7 +3,7 @@ import { getRandomBook } from './randomBook.js';
 import { updateBookStatus, deleteBook, updateFullBook, getAllBooks } from './storage.js';
 import { renderBooks } from './library.js';
 import { updateGliderPosition } from './status-glider.js';
-import { setupEditModal } from './editBook.js';
+import { setupEditModal, setupEditForm } from './editBook.js';
 
 document.addEventListener('click', async (e) => {
     const target = e.target;
@@ -17,6 +17,11 @@ document.addEventListener('click', async (e) => {
             const form = overlay.querySelectorAll('form');
             if (form.length > 0) {
                 form.forEach(f => resetForm(f));
+                if (overlay.dataset.mode === 'edit') {
+                    overlay.dataset.mode = '';
+                    const editOverlay = document.querySelector('.modal-overlay[data-modal="edit-book"]');
+                    setModalState(editOverlay, true);
+                }
             } else {
                 setModalState(overlay, false);
             }
@@ -59,6 +64,12 @@ document.addEventListener('click', async (e) => {
     if (confirmCancelBtn) {
         const confirmOverlay = confirmCancelBtn.closest('.modal-overlay');
         setModalState(confirmOverlay, false);
+        return;
+    }
+
+    const pencilBtn = e.target.closest('.bi-pencil');
+    if (pencilBtn) {
+        pencilAction(pencilBtn);
         return;
     }
 
@@ -180,3 +191,19 @@ const editAction = async (btn) => {
     await renderBooks();
     setModalState(overlay, false);
 };
+
+const pencilAction = async (btn) => {
+    const editOverlay = btn.closest('.modal-overlay');
+    const bookId = +editOverlay.querySelector('.btn-save').dataset.id;
+    const allBooks = await getAllBooks();
+    const book = allBooks.find(b => b.id === bookId);
+
+    if (book) {
+        await setupEditForm(book);
+        setModalState(editOverlay, false);
+        const addOverlay = document.querySelector('.modal-overlay[data-modal="add-book"]');
+        addOverlay.dataset.mode = 'edit';
+        addOverlay.dataset.editId = bookId;
+        setModalState(addOverlay, true);
+    }
+}

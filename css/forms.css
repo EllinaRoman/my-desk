@@ -75,6 +75,8 @@
   );
   color: var(--text); 
   --title-color: var(--accent1);
+
+  flex-shrink: 0;
 }
 
 html[data-theme="dark"] .new-book_no-cover, html[data-theme="dark"] .random-book_no-cover, html[data-theme="dark"] .edit-book_no-cover {

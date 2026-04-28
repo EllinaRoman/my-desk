@@ -104,13 +104,14 @@
   }
 
   .new-book {
-    width: 60%;
+    width: 80%;
   }
 
   .new-book_cover,
   .new-book_no-cover {
-    width: 150px;
-    height: 225px;
+    width: 200px;
+    height: 300px;
+    flex-shrink: 0;
   }
 
   .no-cover_title {
@@ -343,13 +344,6 @@
     gap: 12px;
   }
 
-  .new-book_cover,
-  .new-book_no-cover {
-    width: 160px;
-    height: 240px;
-    flex-shrink: 0;
-  }
-
   .no-cover_title {
     font-size: 1.15rem;
   }
@@ -485,13 +479,6 @@
   .random-book_tags {
     flex-direction: row;
     flex-wrap: wrap;
-  }
-
-  .new-book_cover,
-  .new-book_no-cover {
-    width: 160px;
-    height: 240px;
-    flex-shrink: 0;
   }
 
   .close-modal {
