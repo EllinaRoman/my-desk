@@ -82,7 +82,7 @@ formAddBook.addEventListener('submit', async (e) => {
                 id: editId ? +editId : Date.now(),
                 title: title.value.trim(),
                 author: author.value.trim(),
-                series: formData.get('series'),
+                series: formData.get('series').trim() || null,
                 seriesNum: +formData.get('series-num'),
                 age: formData.get('age').trim() || "0+",
                 annotation: annotationValue || null,

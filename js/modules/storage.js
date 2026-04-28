@@ -22,6 +22,7 @@ const authReady = new Promise((resolve) => {
     resolveAuthReady = resolve;
 });
 
+let cachedBooks = null;
 
 const authSubscribers = new Set();
 
@@ -124,6 +125,7 @@ const syncLocalBooksToUser = async (user) => {
 };
 
 onAuthStateChanged(auth, async (user) => {
+    cachedBooks = null;
     currentUser = user;
 
     if (user) {
@@ -150,6 +152,7 @@ export const subscribeToAuthChanges = (callback) => {
 };
 
 export const saveToDB = async (book) => {
+    cachedBooks = null;
     await waitAuthReady();
 
     if (currentUser) {
@@ -162,15 +165,20 @@ export const saveToDB = async (book) => {
 export const getAllBooks = async () => {
     await waitAuthReady();
 
+    if (cachedBooks) return cachedBooks;
+
     if (currentUser) {
-        return getRemoteBooks(currentUser);
+        cachedBooks = await getRemoteBooks(currentUser);
+    } else {
+        cachedBooks = await getLocalBooks();
     }
 
-    return getLocalBooks();
+    return cachedBooks;
 };
 
 
 export const deleteBook = async (id) => {
+    cachedBooks = null;
     await waitAuthReady();
     await deleteLocalBook(id);
 
@@ -180,6 +188,7 @@ export const deleteBook = async (id) => {
 };
 
 export const updateFullBook = async (updatedBook) => {
+    cachedBooks = null;
     return saveToDB(updatedBook);
 };
 

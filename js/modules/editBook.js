@@ -11,43 +11,8 @@ const setTextBlock = (el, value) => {
     el.textContent = hasValue ? value : '';
 };
 
-export const setupEditModal = async (book) => {
-    const modal = document.querySelector('.modal-overlay[data-modal="edit-book"]');
-    if (!modal) return;
-
-    const title = modal.querySelector('.edit-book_title');
-    const author = modal.querySelector('.edit-book_author');
-    const cover = modal.querySelector('.edit-book_cover');
-    const noCover = modal.querySelector('.edit-book_no-cover');
-    const tags = modal.querySelector('.edit-book_tags');
-    const annotation = modal.querySelector('.edit-book_book-annotation');
-
-    title.textContent = book.title;
-    author.textContent = book.author;
-
-    tags.innerHTML = [
-        `<div class="tag-age">${book.age}</div>`,
-        book.series ? `<div class="tag-series">${book.series} #${book.seriesNum}</div>` : '',
-        ...book.allGenres.map(g => `<div class="tag-genre">${g}</div>`),
-        ...book.allTropes.map(t => `<div class="tag-trope">${t}</div>`)
-    ].join('');
-
-
-    const hasCover = !!book.cover;
-    toggleBlock(cover, hasCover);
-    toggleBlock(noCover, !hasCover);
-
-    if (hasCover) {
-        cover.src = book.cover;
-    } else {
-        noCover.style.setProperty('--book-hue', book.accentHue);
-        noCover.querySelector('.edit_no-author').textContent = book.author;
-        noCover.querySelector('.edit_no-title').textContent = book.title;
-    }
-
-    setTextBlock(annotation, book.annotation);
-
-    const status = modal.querySelector(`input[name="edit-status"][value="${book.status}"]`);
+const editStatusAndRating = (modal, book, statusInputName) => {
+    const status = modal.querySelector(`input[name="${statusInputName}-status"][value="${book.status}"]`);
     if (status) {
         status.checked = true;
         const toggle = modal.querySelector('.status-toggle');
@@ -64,14 +29,69 @@ export const setupEditModal = async (book) => {
 
         if (book.status === 'completed') {
             setStarRating(modal, book.rating || 0);
+            const opinion = modal.querySelector(`#${statusInputName}-opinion`);
+            const notes = modal.querySelector(`#${statusInputName}-notes`);
+            if (opinion) opinion.value = book.opinion || '';
+            if (notes) notes.value = book.notes || '';
         }
     }
+}
 
-    const opinion = modal.querySelector('#edit-opinion');
-    const notes = modal.querySelector('#edit-notes');
-    if (opinion) opinion.value = book.opinion || '';
-    if (notes) notes.value = book.notes || '';
+const addTagToList = (values, storage, list, itemClass, textClass, deleteClass, activeClass, mainTags) => {
+    values.forEach(el => {
+        storage.push(el);
+        list.parentElement.classList.remove('hidden');
+        const newBtn = document.createElement("button");
+        newBtn.type = "button";
+        newBtn.className = (`btn ${itemClass}`);
 
+        if (mainTags?.includes(el)) {
+            newBtn.classList.add(`${activeClass}`);
+        };
+
+        newBtn.innerHTML = `<span class="${textClass}">${el}</span>
+                        <span class="${deleteClass}">&times;</span>`;
+        list.append(newBtn)
+    });
+}
+
+export const setupEditModal = (book) => {
+    const modal = document.querySelector('.modal-overlay[data-modal="edit-book"]');
+    if (!modal) return;
+
+    const elements = {
+        title: modal.querySelector('.edit-book_title'),
+        author: modal.querySelector('.edit-book_author'),
+        cover: modal.querySelector('.edit-book_cover'),
+        noCover: modal.querySelector('.edit-book_no-cover'),
+        tags: modal.querySelector('.edit-book_tags'),
+        annotation: modal.querySelector('.edit-book_book-annotation')
+    };
+
+    elements.title.textContent = book.title;
+    elements.author.textContent = book.author;
+
+    elements.tags.innerHTML = [
+        `<div class="tag-age">${book.age}</div>`,
+        book.series ? `<div class="tag-series">${book.series} #${book.seriesNum}</div>` : '',
+        ...book.allGenres.map(g => `<div class="tag-genre">${g}</div>`),
+        ...book.allTropes.map(t => `<div class="tag-trope">${t}</div>`)
+    ].join('');
+
+    const hasCover = !!book.cover;
+    toggleBlock(elements.cover, hasCover);
+    toggleBlock(elements.noCover, !hasCover);
+
+    if (hasCover) {
+        elements.cover.src = book.cover;
+    } else {
+        elements.noCover.style.setProperty('--book-hue', book.accentHue);
+        elements.noCover.querySelector('.edit_no-author').textContent = book.author;
+        elements.noCover.querySelector('.edit_no-title').textContent = book.title;
+    }
+
+    setTextBlock(elements.annotation, book.annotation);
+    editStatusAndRating(modal, book, 'edit');
 
     const editButtons = modal.querySelectorAll('.edit-book_controls .btn');
 
@@ -80,7 +100,7 @@ export const setupEditModal = async (book) => {
     });
 };
 
-export const setupEditForm = async (book) => {
+export const setupEditForm = (book) => {
     const modal = document.querySelector('.modal-overlay[data-modal="add-book"]');
     if (!modal) return;
 
@@ -89,29 +109,30 @@ export const setupEditForm = async (book) => {
     modalTitle.textContent = 'Редактировать книгу';
     modalAddBtn.textContent = 'Сохранить изменения'
 
-
-    const title = modal.querySelector('[name="title"]');
-    const author = modal.querySelector('[name="author"]');
-    const series = modal.querySelector('[name="series"]');
-    const seriesNum = modal.querySelector('[name="series-num"]');
-    const age = modal.querySelector('[name="age"]');
-    const annotation = modal.querySelector('[name="annotation"]');
     const imgPreview = modal.querySelector('.cover-preview');
     const coverText = modal.querySelector('.cover-text');
 
 
-    title.value = book.title;
-    author.value = book.author;
-    series.value = book.series;
-    seriesNum.value = book.seriesNum;
-    age.value = book.age;
-    annotation.value = book.annotation;
+    const fields = {
+        'title': 'title',
+        'author': 'author',
+        'series': 'series',
+        'series-num': 'seriesNum',
+        'age': 'age',
+        'annotation': 'annotation'
+    };
 
-    if (book.cover) {
-        imgPreview.src = book.cover;
-        imgPreview.classList.remove('hidden');
-        coverText.classList.add('hidden');
-    }
+    Object.entries(fields).forEach(([name, key]) => {
+        const input = modal.querySelector(`[name="${name}"]`);
+        if (input) {
+            input.value = book[key] ?? '';
+        }
+    });
+
+    const hasCover = !!book.cover;
+    imgPreview.src = book.cover || '';
+    imgPreview.classList.toggle('hidden', !hasCover);
+    coverText.classList.toggle('hidden', hasCover);
 
     modal.dataset.originalCover = book.cover || '';
     modal.dataset.originalHue = book.accentHue || '';
@@ -124,60 +145,8 @@ export const setupEditForm = async (book) => {
     listGenre.parentElement.classList.add('hidden');
     listTrope.parentElement.classList.add('hidden');
 
-    book.allGenres.forEach(g => {
-        selectedGenres.push(g);
-        listGenre.parentElement.classList.remove('hidden');
-        const newBtn = document.createElement("button");
-        newBtn.type = "button";
-        newBtn.className = ('btn genre-btn tag-genre');
+    addTagToList(book.allGenres, selectedGenres, listGenre, 'genre-btn tag-genre', 'text-genre', 'delete-genre', 'active-genre', book.mainGenres);
+    addTagToList(book.allTropes, selectedTropes, listTrope, 'trope-btn tag-trope', 'text-trope', 'delete-trope', 'active-trope', book.mainTropes);
 
-        if (book.mainGenres.includes(g)) {
-            newBtn.classList.add('active-genre');
-        };
-
-        newBtn.innerHTML = `<span class="text-genre">${g}</span>
-                        <span class="delete-genre">&times;</span>`;
-        listGenre.append(newBtn)
-    });
-
-    book.allTropes.forEach(g => {
-        selectedTropes.push(g);
-        listTrope.parentElement.classList.remove('hidden');
-        const newBtn = document.createElement("button");
-        newBtn.type = "button";
-        newBtn.className = ('btn trope-btn tag-trope');
-
-        if (book.mainTropes.includes(g)) {
-            newBtn.classList.add('active-trope');
-        };
-
-        newBtn.innerHTML = `<span class="text-trope">${g}</span>
-                        <span class="delete-trope">&times;</span>`;
-        listTrope.append(newBtn)
-    });
-
-
-    const status = modal.querySelector(`input[name="add-status"][value="${book.status}"]`);
-    if (status) {
-        status.checked = true;
-        const toggle = modal.querySelector('.status-toggle');
-        const label = modal.querySelector(`label[for="${status.id}"]`);
-
-        updateGliderPosition(toggle, label);
-        toggle.querySelectorAll('label').forEach(l => l.classList.remove('status-active'));
-        label.classList.add('status-active');
-
-        const ratingBlock = modal.querySelector('.book-rating_group');
-        if (ratingBlock) {
-            ratingBlock.classList.toggle('hidden', book.status !== 'completed');
-        }
-
-        if (book.status === 'completed') {
-            setStarRating(modal, book.rating || 0);
-            const opinion = modal.querySelector('#add-opinion');
-            const notes = modal.querySelector('#add-notes');
-            if (opinion) opinion.value = book.opinion || '';
-            if (notes) notes.value = book.notes || '';
-        }
-    }
+    editStatusAndRating(modal, book, 'add');
 };
