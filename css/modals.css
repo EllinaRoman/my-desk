@@ -18,14 +18,13 @@
   -webkit-backdrop-filter: blur(6px);
   opacity: 0;
   pointer-events: none;
-  transition:
-    opacity 0.3s ease,
-    backdrop-filter 0.3s ease;
+  visibility: hidden;
 }
 
 .modal-overlay.open {
   opacity: 1;
   pointer-events: all;
+  visibility: visible;
 }
 
 /* ==============================

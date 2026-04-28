@@ -45,21 +45,15 @@ nav {
 }
 
 .modal-overlay {
-  opacity: 0;
-  visibility: hidden;
   transition:
     opacity 0.3s ease,
+    backdrop-filter 0.3s ease,
     visibility 0.3s ease;
 }
 
 .modal-content {
   transform: translateY(20px);
   transition: transform 0.3s ease;
-}
-
-.modal-overlay.open {
-  opacity: 1;
-  visibility: visible;
 }
 
 .modal-overlay.open .modal-content {
@@ -76,10 +70,9 @@ nav {
   cursor: pointer;
 }
 
-.new-book {
+.new-book_main {
   opacity: 0;
-  transform: translateY(10px);
-  animation: fadeIn 0.35s ease forwards;
+  animation: fadeCard 0.35s ease forwards;
 }
 
 .new-book_title,
@@ -98,7 +91,7 @@ nav {
 .btn_random-book,
 .filter-select,
 .search_filter,
-.btn_login {
+.btn_login, .new-book_bar {
   transition:
     background-color 0.4s ease,
     color 0.4s ease,
@@ -159,6 +152,17 @@ nav {
   from {
     opacity: 0;
     transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeCard {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
