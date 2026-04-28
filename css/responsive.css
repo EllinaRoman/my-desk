@@ -3,7 +3,7 @@
    ============================== */
 @media screen and (max-width: 1224px) {
   .book-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .container {
@@ -35,8 +35,6 @@
   .new-book_tags {
     justify-content: center;
   }
-
-
 
   .main-control .container {
     flex-direction: column;
@@ -76,10 +74,20 @@
     padding: 24px;
   }
 
-  .random-book_cover,
-  .random-book_no-cover {
-    width: 140px;
-    height: 210px;
+  .random-book_book-info {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+    margin-bottom: 0px;
+  }
+
+  .random-book_tags {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .filter,
@@ -104,7 +112,7 @@
   }
 
   .new-book {
-    width: 80%;
+    width: 60%;
   }
 
   .new-book_cover,
@@ -189,7 +197,7 @@
    ============================== */
 @media (max-width: 600px) {
   html {
-    font-size: 17px;
+    font-size: 20px;
   }
 
   .modal_random-book,
@@ -218,6 +226,10 @@
   .header_container {
     padding-top: 12px;
     padding-bottom: 12px;
+  }
+
+  .new-book {
+    width: 80%;
   }
 
   .btn_add-book {
@@ -299,7 +311,7 @@
   .btn_random-book_want,
   .btn_random-book_future,
   .btn_random-book_nope {
-    width: 70%;
+    width: 80%;
   }
 
   .btn_random-book {
@@ -363,7 +375,7 @@
   }
 
   .new-book_title {
-    font-size: 1rem;
+    font-size: 1.2rem;
   }
 
   .new-book_author {
@@ -375,7 +387,7 @@
   .tag-trope,
   .tag-series,
   .new-book_status {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     padding: 4px 8px;
   }
 
@@ -400,7 +412,24 @@
 
   .edit-book_title-group {
     font-size: 1.2rem;
-    padding-right: 43px;
+    text-align: center;
+  }
+
+  .edit-book_main-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .edit-book_book-info {
+    align-items: center;
+  }
+
+  .edit-book_cover,
+  .edit-book_no-cover {
+    width: 200px;
   }
 
   .add-book_title {
@@ -476,9 +505,8 @@
     padding-bottom: 30px;
   }
 
-  .random-book_tags {
-    flex-direction: row;
-    flex-wrap: wrap;
+  .random-book_book-annotation {
+    font-size: 0.83rem;
   }
 
   .close-modal {
@@ -533,14 +561,5 @@
     flex-direction: column;
     gap: 10px;
     flex-direction: column-reverse;
-  }
-
-  .random-book_book-info {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 13px;
   }
 }

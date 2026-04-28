@@ -31,7 +31,9 @@
   background-color: transparent;
   outline: none;
   cursor: pointer;
-  transition: transform 0.3s ease, color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    color 0.3s ease;
   display: inline-block;
   position: relative;
 }
@@ -52,7 +54,7 @@
    ============================== */
 .book-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 23px;
   margin-bottom: 40px;
 }
@@ -76,10 +78,10 @@
 .flower-loader {
   width: 200px;
   height: 200px;
-  
-  background-image: url('../img/loader.svg');
+
+  background-image: url("../img/loader.svg");
   background-repeat: no-repeat;
-  background-size: 2600px 100%; 
+  background-size: 2600px 100%;
 
   grid-column: 1 / -1;
   margin: 80px auto;
@@ -100,8 +102,7 @@
 .new-book:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px var(--shadow2);
-} 
-
+}
 
 .new-book_bar {
   height: 100%;
@@ -111,11 +112,21 @@
 }
 
 /* Цвета полоски статуса */
-[data-status="completed"] .new-book_bar { background-color: var(--read); }
-[data-status="reading"] .new-book_bar { background-color: var(--reading); }
-[data-status="want"] .new-book_bar { background-color: var(--want); }
-[data-status="future"] .new-book_bar { background-color: var(--future); }
-[data-status="not-reading"] .new-book_bar { background-color: var(--nope); }
+[data-status="completed"] .new-book_bar {
+  background-color: var(--read);
+}
+[data-status="reading"] .new-book_bar {
+  background-color: var(--reading);
+}
+[data-status="want"] .new-book_bar {
+  background-color: var(--want);
+}
+[data-status="future"] .new-book_bar {
+  background-color: var(--future);
+}
+[data-status="not-reading"] .new-book_bar {
+  background-color: var(--nope);
+}
 
 .new-book_main {
   display: flex;
@@ -123,9 +134,16 @@
   gap: 14px;
   padding: 17px 34px 17px 15px;
   flex: 1;
+  min-width: 0;
 }
 
-.new-book_cover, .new-book_no-cover {
+.new-book_main-info {
+  min-width: 0;
+}
+
+
+.new-book_cover,
+.new-book_no-cover {
   border-radius: 10px;
   width: 206px;
   height: 309px;
@@ -133,20 +151,22 @@
   flex-shrink: 0;
 }
 
-.new-book_no-cover, .edit-book_no-cover {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;  
-    text-align: center;
-    padding: 35px 10px 10px 10px;
+.new-book_no-cover,
+.edit-book_no-cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  padding: 35px 10px 10px 10px;
 }
 
 .edit-book_no-cover {
   padding: 7px 9px;
 }
 
-.no-cover_title, .edit_no-title {
+.no-cover_title,
+.edit_no-title {
   font-family: var(--main-title-font);
   font-size: 1.7rem;
   color: var(--no-cover-text);
@@ -157,7 +177,8 @@
   display: flex;
 }
 
-.no-cover_author, .edit_no-author {
+.no-cover_author,
+.edit_no-author {
   font-family: var(--main-text-font);
   font-weight: 600;
   color: var(--no-cover-text);
@@ -173,7 +194,6 @@
   font-weight: 400;
   font-size: 0.6rem;
 }
-
 
 /* ==============================
    @BOOK_DETAILS
@@ -205,12 +225,15 @@
   row-gap: 10px;
   column-gap: 5px;
   flex-wrap: wrap;
+
+  min-width: 0;
+  overflow: hidden;
 }
 
 .new-book_status {
   font-family: var(--main-text-font);
   font-weight: 600;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   padding: 3px 9px;
   border-radius: 20px;
   color: var(--main_white);
@@ -219,11 +242,21 @@
 }
 
 /* Цвета плашки статуса */
-.new-book_status[data-status="reading"] { background-color: var(--reading); }
-.new-book_status[data-status="future"] { background-color: var(--future); }
-.new-book_status[data-status="not-reading"] { background-color: var(--nope); }
-.new-book_status[data-status="want"] { background-color: var(--want); }
-.new-book_status[data-status="completed"] { background-color: var(--read); }
+.new-book_status[data-status="reading"] {
+  background-color: var(--reading);
+}
+.new-book_status[data-status="future"] {
+  background-color: var(--future);
+}
+.new-book_status[data-status="not-reading"] {
+  background-color: var(--nope);
+}
+.new-book_status[data-status="want"] {
+  background-color: var(--want);
+}
+.new-book_status[data-status="completed"] {
+  background-color: var(--read);
+}
 
 .new-book_stars {
   display: flex;

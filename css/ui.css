@@ -412,11 +412,18 @@ select.form-input--field {
 .tag-series {
   font-family: var(--main-text-font);
   font-weight: 600;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   padding: 3px 9px;
   border-radius: 20px;
-  display: flex;
   align-items: center;
+
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .tag-age {
