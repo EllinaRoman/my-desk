@@ -49,7 +49,7 @@ formAddBook.addEventListener('submit', async (e) => {
             const allBooks = await getAllBooks();
             const isDuplicate = allBooks.some(book => book.series?.toLowerCase() === seriesValue.toLowerCase() && book.seriesNum === +numValue && String(book.id) !== String(editId));
             if (isDuplicate) {
-                isValid = toggleError(num, false, 'Номер уже занят');
+                toggleError(num, false, 'Номер уже занят');
                 return;
             }
             if (numValue > 1) {
@@ -59,6 +59,8 @@ formAddBook.addEventListener('submit', async (e) => {
                 }
             }
         }
+    } else {
+         toggleError(num, true);
     }
 
     if (status === 'completed' && ratingValue === 0) {
@@ -77,13 +79,15 @@ formAddBook.addEventListener('submit', async (e) => {
         }
 
         const saveBook = async (coverData) => {
+            const normalizedSeries = formData.get('series').trim() || null;
+            const normalizedSeriesNum = normalizedSeries ? +formData.get('series-num') : null;
 
             const newBook = {
                 id: editId ? +editId : Date.now(),
                 title: title.value.trim(),
                 author: author.value.trim(),
-                series: formData.get('series').trim() || null,
-                seriesNum: +formData.get('series-num'),
+                series: normalizedSeries,
+                seriesNum: normalizedSeriesNum,
                 age: formData.get('age').trim() || "0+",
                 annotation: annotationValue || null,
                 status,

@@ -206,4 +206,4 @@ const pencilAction = async (btn) => {
         addOverlay.dataset.editId = bookId;
         setModalState(addOverlay, true);
     }
-}
+};

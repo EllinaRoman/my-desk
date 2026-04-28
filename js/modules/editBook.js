@@ -35,7 +35,7 @@ const editStatusAndRating = (modal, book, statusInputName) => {
             if (notes) notes.value = book.notes || '';
         }
     }
-}
+};
 
 const addTagToList = (values, storage, list, itemClass, textClass, deleteClass, activeClass, mainTags) => {
     values.forEach(el => {
@@ -51,9 +51,9 @@ const addTagToList = (values, storage, list, itemClass, textClass, deleteClass, 
 
         newBtn.innerHTML = `<span class="${textClass}">${el}</span>
                         <span class="${deleteClass}">&times;</span>`;
-        list.append(newBtn)
+        list.append(newBtn);
     });
-}
+};
 
 export const setupEditModal = (book) => {
     const modal = document.querySelector('.modal-overlay[data-modal="edit-book"]');
@@ -107,7 +107,7 @@ export const setupEditForm = (book) => {
     const modalTitle = modal.querySelector('.add-book_title');
     const modalAddBtn = modal.querySelector('.btn_add-book_add');
     modalTitle.textContent = 'Редактировать книгу';
-    modalAddBtn.textContent = 'Сохранить изменения'
+    modalAddBtn.textContent = 'Сохранить изменения';
 
     const imgPreview = modal.querySelector('.cover-preview');
     const coverText = modal.querySelector('.cover-text');
