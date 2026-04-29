@@ -16,12 +16,11 @@ document.addEventListener('click', async (e) => {
         if (overlay) {
             const form = overlay.querySelectorAll('form');
             if (form.length > 0) {
-                form.forEach(f => resetForm(f));
                 if (overlay.dataset.mode === 'edit') {
                     overlay.dataset.mode = '';
                     const editOverlay = document.querySelector('.modal-overlay[data-modal="edit-book"]');
                     setModalState(editOverlay, true);
-                }
+                } form.forEach(f => resetForm(f));
             } else {
                 setModalState(overlay, false);
             }
@@ -125,10 +124,12 @@ export const setModalState = (overlay, isOpen) => {
                 }
             }
         }
+
         return;
     }
 
     overlay.classList.remove('open');
+
     overlay.querySelectorAll('.is-invalid').forEach(el => {
         el.classList.remove('is-invalid');
     });

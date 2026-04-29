@@ -60,7 +60,7 @@ formAddBook.addEventListener('submit', async (e) => {
             }
         }
     } else {
-         toggleError(num, true);
+        toggleError(num, true);
     }
 
     if (status === 'completed' && ratingValue === 0) {
@@ -115,7 +115,17 @@ formAddBook.addEventListener('submit', async (e) => {
             } catch (err) {
                 console.error('Ошибка при сохранении в базу:', err);
             }
-            resetForm(formAddBook);
+            const savedMode = resetForm(formAddBook);
+            if (savedMode === 'edit') {
+                const editOverlay = document.querySelector('.modal-overlay[data-modal="edit-book"]');
+                const books = await getAllBooks();
+                const book = books.find(b => b.id === +editId);
+                if (book) {
+                    const { setupEditModal } = await import('./editBook.js');
+                    setupEditModal(book);
+                    setModalState(editOverlay, true);
+                }
+            }
         };
 
         const file = cover.files[0];
@@ -142,6 +152,7 @@ export const resetForm = (form) => {
 
     const overlay = form.closest('.modal-overlay');
     const label = overlay?.querySelector('.add-book_label-cover');
+    const mode = overlay.dataset.mode;
 
     const modalTitle = overlay?.querySelector('.add-book_title');
     const modalAddBtn = overlay?.querySelector('.btn_add-book_add');
@@ -150,7 +161,9 @@ export const resetForm = (form) => {
 
 
     if (overlay) {
+
         const imgPreview = overlay?.querySelector('.cover-preview');
+
         overlay.dataset.editId = '';
         overlay.dataset.mode = '';
 
@@ -187,4 +200,6 @@ export const resetForm = (form) => {
     if (typeof gliderReset === 'function') {
         gliderReset(form);
     }
+
+    return mode;
 };
