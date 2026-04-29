@@ -11,6 +11,7 @@ import './modules/status-glider.js';
 import './modules/tags.js';
 import './modules/randomBook.js';
 import './modules/editBook.js';
+import './modules/scrollTop.js';
 
 import { renderBooks } from './modules/library.js';
 import { subscribeToAuthChanges } from './modules/storage.js';

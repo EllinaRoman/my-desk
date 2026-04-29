@@ -200,6 +200,14 @@
     font-size: 20px;
   }
 
+  .bi-arrow-up {
+    width: 60px;
+    bottom: 15px;
+    right: 25px;
+
+    font-size: 1.7rem;
+  }
+
   .modal_random-book,
   .modal_edit-book,
   .modal_add-book {
@@ -308,13 +316,17 @@
     gap: 15px;
   }
 
-  .random-book_book-title {
-    font-size: 1.5rem;
-}
+  .random-book_book-title, .edit-book_title {
+    font-size: 1.2rem;
+  }
 
-.random-book_book-author {
-    font-size: 0.85rem;
-}
+  .random-book_book-author, .edit-book_author {
+    font-size: 0.75rem;
+  }
+
+  .new-book_author {
+margin-top: 5px;
+  }
 
   .btn_random-book_want,
   .btn_random-book_future,
@@ -362,6 +374,18 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+
+  .close-modal {
+    top: 15px;
+    right: 15px;
+    padding: 15px;
+    border-radius: 30px;
+  }
+
+  .close {
+    aspect-ratio: 1 / 1;
+    width: 20px;
   }
 
   .no-cover_title {
@@ -515,12 +539,6 @@
 
   .random-book_book-annotation {
     font-size: 0.83rem;
-  }
-
-  .close-modal {
-    top: 15px;
-    right: 15px;
-    padding: 12px;
   }
 
   .form-input,
