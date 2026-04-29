@@ -16,11 +16,20 @@ document.addEventListener('click', async (e) => {
         if (overlay) {
             const form = overlay.querySelectorAll('form');
             if (form.length > 0) {
+                const isEditMode = overlay.dataset.mode === 'edit';
+
                 if (overlay.dataset.mode === 'edit') {
                     overlay.dataset.mode = '';
+                    delete overlay.dataset.editId;
+                }
+
+                form.forEach(f => resetForm(f));
+                setModalState(overlay, false, { keepBodyLocked: isEditMode });
+
+                if (isEditMode) {
                     const editOverlay = document.querySelector('.modal-overlay[data-modal="edit-book"]');
                     setModalState(editOverlay, true);
-                } form.forEach(f => resetForm(f));
+                }
             } else {
                 setModalState(overlay, false);
             }
@@ -94,8 +103,9 @@ document.addEventListener('click', async (e) => {
 
 let savedScrollY = 0;
 
-export const setModalState = (overlay, isOpen) => {
+export const setModalState = (overlay, isOpen, options = {}) => {
     if (!overlay) return;
+    const { keepBodyLocked = false } = options;
 
     const hasOpenedModal = document.querySelector('.modal-overlay.open');
 
@@ -146,7 +156,7 @@ export const setModalState = (overlay, isOpen) => {
 
     const stillOpenedModal = document.querySelector('.modal-overlay.open');
 
-    if (!stillOpenedModal) {
+    if (!stillOpenedModal && !keepBodyLocked) {
         document.body.classList.remove('modal-open');
         document.body.style.top = '';
 
@@ -232,10 +242,10 @@ const pencilAction = async (btn) => {
 
     if (book) {
         await setupEditForm(book);
-        setModalState(editOverlay, false);
+        setModalState(editOverlay, false, { keepBodyLocked: true });
         const addOverlay = document.querySelector('.modal-overlay[data-modal="add-book"]');
         addOverlay.dataset.mode = 'edit';
         addOverlay.dataset.editId = bookId;
-        setModalState(addOverlay, true);
+        setModalState(addOverlay, true, { keepBodyLocked: true });
     }
 };

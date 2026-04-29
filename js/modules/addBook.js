@@ -118,10 +118,13 @@ formAddBook.addEventListener('submit', async (e) => {
             }
             const savedMode = resetForm(formAddBook);
             if (savedMode === 'edit') {
+                const addOverlay = document.querySelector('.modal-overlay[data-modal="add-book"]');
                 const editOverlay = document.querySelector('.modal-overlay[data-modal="edit-book"]');
+
                 setupEditModal(newBook);
-                setModalState(editOverlay, true);
-                setModalState(document.querySelector('.modal-overlay[data-modal="add-book"]'), false);
+
+                setModalState(addOverlay, false, { keepBodyLocked: true });
+                setModalState(editOverlay, true, { keepBodyLocked: true });
             }
         };
 
