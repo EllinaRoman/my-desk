@@ -93,37 +93,66 @@ document.addEventListener('click', async (e) => {
     }
 });
 
+let savedScrollY = 0;
+
 export const setModalState = (overlay, isOpen) => {
     if (!overlay) return;
-    
-    overlay.classList.toggle('open', isOpen);
-    document.body.classList.toggle('modal-open', isOpen);
+
+    const hasOpenedModal = document.querySelector('.modal-overlay.open');
 
     if (isOpen) {
+        if (!hasOpenedModal) {
+            savedScrollY = window.scrollY;
+
+            document.body.style.top = `-${savedScrollY}px`;
+            document.body.classList.add('modal-open');
+        }
+
+        overlay.classList.add('open');
+
         const toggle = overlay.querySelector('.status-toggle');
+
         if (toggle) {
             const activeInput = toggle.querySelector('input:checked');
+
             if (activeInput) {
-                const activeLabel = toggle.querySelector(`label[for="${activeInput.id}"]`);
+                const activeLabel = toggle.querySelector(
+                    `label[for="${activeInput.id}"]`
+                );
+
                 if (activeLabel) {
                     updateGliderPosition(toggle, activeLabel);
                 }
             }
         }
+        return;
     }
 
-    if (!isOpen) {
-        overlay.querySelectorAll('.is-invalid').forEach(el => {
-            el.classList.remove('is-invalid');
+    overlay.classList.remove('open');
+    overlay.querySelectorAll('.is-invalid').forEach(el => {
+        el.classList.remove('is-invalid');
+    });
+
+    const starRating = overlay.querySelector('.star-rating');
+
+    if (starRating) {
+        starRating.querySelectorAll('.star-btn').forEach(btn => {
+            btn.classList.remove('star-active');
         });
 
-        const starRating = overlay.querySelector('.star-rating');
-        if (starRating) {
-            starRating.querySelectorAll('.star-btn').forEach(btn => {
-                btn.classList.remove('star-active');
-            });
-            starRating.dataset.value = 0;
-        }
+        starRating.dataset.value = 0;
+    }
+
+    const stillOpenedModal = document.querySelector('.modal-overlay.open');
+
+    if (!stillOpenedModal) {
+        document.body.classList.remove('modal-open');
+        document.body.style.top = '';
+
+        window.scrollTo({
+            top: savedScrollY,
+            behavior: 'instant'
+        });
     }
 };
 
