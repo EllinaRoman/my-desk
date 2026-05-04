@@ -97,7 +97,7 @@ export const setupEditForm = (book) => {
 
     const modalTitle = modal.querySelector('.add-book_title');
     const modalAddBtn = modal.querySelector('.btn_add-book_add');
-    modalTitle.textContent = 'Редактировать книгу';
+    modalTitle.textContent = 'Редактировать игру';
     modalAddBtn.textContent = 'Сохранить изменения';
 
     const imgPreview = modal.querySelector('.cover-preview');

@@ -214,7 +214,6 @@ const editAction = async (btn) => {
         if (book) {
             const newStatus = overlay.querySelector('input[name="edit-status"]:checked').value;
             const newOpinion = overlay.querySelector('#edit-opinion')?.value || '';
-            const newNotes = overlay.querySelector('#edit-notes')?.value || '';
             const newRating = Number(overlay.querySelector('.star-rating')?.dataset.value) || 0;
 
             const ratingBlock = overlay.querySelector('.book-rating_group');

@@ -49,7 +49,7 @@ export const getRandomBook = async () => {
 
         const seriesList = content.querySelector('.random-book_all-series');
         const seriesTitle = content.querySelector('.random-book_series-title');
-        seriesTitle.textContent = `Это ${randomBook.seriesNum} книга серии "${randomBook.series}"`;
+        seriesTitle.textContent = `Это ${randomBook.seriesNum} игра серии "${randomBook.series}"`;
         seriesList.innerHTML = sortSeries.map((el) => {
             const isActive = el.id === randomBook.id;
             const isCompleted = el.status === 'completed' ? '(✓)' : '';

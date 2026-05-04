@@ -1,20 +1,14 @@
 import { getAllBooks } from './storage.js';
 
 const updateMyLists = (allBooks) => {
-  const setAuthors = new Set();
   const setSeries = new Set();
   const setGenres = new Set();
-  const setTropes = new Set();
 
   allBooks.forEach((book) => {
-    if (book.author) setAuthors.add(book.author.trim());
     if (book.series) setSeries.add(book.series.trim());
 
     if (book.allGenres) {
       book.allGenres.forEach(g => setGenres.add(g.trim()));
-    }
-    if (book.allTropes) {
-      book.allTropes.forEach(t => setTropes.add(t.trim()));
     }
   });
 
