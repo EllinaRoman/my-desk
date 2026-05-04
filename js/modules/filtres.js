@@ -5,21 +5,15 @@ const searchInput = document.querySelector('#search');
 
 const activeFilters = {
     status: 'all',
-    author: 'all',
-    age: 'all',
     series: 'all',
     genre: 'all',
-    trope: 'all',
     title: ''
 };
 
 const fieldMap = {
     'status_filter': 'status',
-    'author_filter': 'author',
-    'age_filter': 'age',
     'series_filter': 'series',
     'genres_filter': 'genre',
-    'tropes_filter': 'trope'
 };
 
 const normalizeFilterValue = (value) => String(value ?? '').trim();

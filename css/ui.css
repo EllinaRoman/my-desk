@@ -97,7 +97,6 @@
 
 .filter-select {
   padding: 7px 14px;
-  color: var(--text);
   border: 1px solid var(--card-border);
   border-radius: 20px;
   font-size: 0.85rem;
@@ -106,6 +105,10 @@
 
   appearance: none;
   -webkit-appearance: none;
+}
+
+select .filter-select {
+    color: var(--text);
 }
 
 .search_filter:hover,
@@ -133,6 +136,15 @@
   outline: none;
   transition: border-color 0.2s ease;
   padding: 12px 16px;
+}
+
+#edit-opinion, #add-opinio {
+  color: var(--text2);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
 }
 
 input:-webkit-autofill,

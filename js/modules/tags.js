@@ -1,9 +1,6 @@
 export const selectedGenres = [];
-export const selectedTropes = [];
 const btnAddGenres = document.querySelector('#add_genre');
 export const listGenre = document.querySelector('.genre');
-const btnAddTropes = document.querySelector('#add_trope');
-export const listTrope = document.querySelector('.trope');
 
 export const addTag = (input, storage, list, itemClass, textClass, deleteClass) => {
     const value = input.value.trim();
@@ -15,7 +12,7 @@ export const addTag = (input, storage, list, itemClass, textClass, deleteClass) 
         newBtn.className = (itemClass);
         newBtn.innerHTML = `<span class="${textClass}">${value}</span>
                         <span class="${deleteClass}">&times;</span>`;
-        const innerList = list.querySelector('.genre, .trope');
+        const innerList = list.querySelector('.genre');
         innerList.append(newBtn);
         input.value = '';
     }

@@ -69,22 +69,16 @@ export const getRandomBook = async () => {
     }
 
     const title = content.querySelector('.random-book_book-title');
-    const author = content.querySelector('.random-book_book-author');
     const cover = content.querySelector('.random-book_cover');
     const noCover = content.querySelector('.random-book_no-cover');
     const tags = content.querySelector('.random-book_tags');
-    const annotation = content.querySelector('.random-book_book-annotation');
 
     title.textContent = randomBook.title;
-    author.textContent = randomBook.author;
 
     const finalGenres = getTagsToDisplay(randomBook.mainGenres, randomBook.allGenres);
-    const finalTropes = getTagsToDisplay(randomBook.mainTropes, randomBook.allTropes);
 
     tags.innerHTML = [
-        `<div class="tag-age">${randomBook.age}</div>`,
-        ...finalGenres.map(g => `<div class="tag-genre">${g}</div>`),
-        ...finalTropes.map(t => `<div class="tag-trope">${t}</div>`)
+        ...finalGenres.map(g => `<div class="tag-genre">${g}</div>`)
     ].join('');
 
 
@@ -96,11 +90,8 @@ export const getRandomBook = async () => {
         cover.src = randomBook.cover;
     } else {
         noCover.style.setProperty('--book-hue', randomBook.accentHue);
-        noCover.querySelector('.no-cover_author').textContent = randomBook.author;
         noCover.querySelector('.no-cover_title').textContent = randomBook.title;
     }
-
-    setTextBlock(annotation, randomBook.annotation);
 
     const randomButtons = content.querySelectorAll('.random-book_buttons .btn');
 

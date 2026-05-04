@@ -1,5 +1,5 @@
 import { getBookDesign, compressImage } from './ui-helpers.js';
-import { selectedGenres, selectedTropes, listGenre, listTrope } from './tags.js';
+import { selectedGenres, listGenre } from './tags.js';
 import { getAllBooks, saveToDB, updateFullBook } from './storage.js';
 import { gliderReset } from './status-glider.js';
 import { renderBooks } from './library.js';
@@ -18,14 +18,14 @@ const toggleError = (input, isValid, message = '') => {
     return isValid;
 };
 
-['title', 'author', 'series-num'].forEach(name => {
+['title', 'series-num'].forEach(name => {
     const input = formAddBook.querySelector(`[name="${name}"]`);
     input?.addEventListener('input', () => toggleError(input, true));
 });
 
 formAddBook.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const { title, author, cover, series, 'series-num': num } = e.target.elements;
+    const { title, cover, series, 'series-num': num } = e.target.elements;
     const starRating = formAddBook.querySelector('.star-rating');
     const ratingValue = +starRating.dataset.value || 0;
     const status = new FormData(formAddBook).get('add-status');
@@ -33,7 +33,6 @@ formAddBook.addEventListener('submit', async (e) => {
     let isValid = true;
 
     if (!title.value.trim()) isValid = toggleError(title, false);
-    if (!author.value.trim()) isValid = toggleError(author, false);
 
 
     const seriesValue = series.value.trim();
@@ -73,12 +72,6 @@ formAddBook.addEventListener('submit', async (e) => {
     if (isValid) {
         const formData = new FormData(formAddBook);
 
-        let annotationValue = formData.get('annotation').trim() || null;
-
-        if (!annotationValue && newAnnotation) {
-            annotationValue = newAnnotation;
-        }
-
         const saveBook = async (coverData) => {
             const normalizedSeries = formData.get('series').trim() || null;
             const normalizedSeriesNum = normalizedSeries ? +formData.get('series-num') : null;
@@ -86,24 +79,17 @@ formAddBook.addEventListener('submit', async (e) => {
             const newBook = {
                 id: editId ? +editId : Date.now(),
                 title: title.value.trim(),
-                author: author.value.trim(),
                 series: normalizedSeries,
                 seriesNum: normalizedSeriesNum,
-                age: formData.get('age').trim() || "0+",
-                annotation: annotationValue || null,
                 status,
                 statusText: document.querySelector(`label[for="${formAddBook.querySelector('input[name="add-status"]:checked').id}"]`).textContent.trim(),
                 cover: coverData,
                 accentHue: coverData ? null : (editId ? (overlay.dataset.originalHue || getBookDesign()) : getBookDesign()),
                 allGenres: [...selectedGenres],
-                allTropes: [...selectedTropes],
                 mainGenres: Array.from(listGenre.querySelectorAll('.active-genre'))
                     .map(el => el.querySelector('.text-genre').textContent),
-                mainTropes: Array.from(listTrope.querySelectorAll('.active-trope'))
-                    .map(el => el.querySelector('.text-trope').textContent),
                 rating: ratingValue,
-                opinion: formData.get('add-opinion').trim() || null,
-                notes: formData.get('add-notes').trim() || null,
+                opinion: formData.get('add-opinion').trim() || null
             };
 
             try {
@@ -156,8 +142,8 @@ export const resetForm = (form) => {
 
     const modalTitle = overlay?.querySelector('.add-book_title');
     const modalAddBtn = overlay?.querySelector('.btn_add-book_add');
-    if (modalTitle) modalTitle.textContent = 'Новая книга';
-    if (modalAddBtn) modalAddBtn.textContent = 'Добавить на полку';
+    if (modalTitle) modalTitle.textContent = 'Новая игра';
+    if (modalAddBtn) modalAddBtn.textContent = 'Добавить в коллекцию';
 
 
     if (overlay) {
@@ -185,11 +171,9 @@ export const resetForm = (form) => {
     }
 
     selectedGenres.length = 0;
-    selectedTropes.length = 0;
 
     const lists = [
         { el: typeof listGenre !== 'undefined' ? listGenre : null },
-        { el: typeof listTrope !== 'undefined' ? listTrope : null }
     ];
 
     lists.forEach(item => {

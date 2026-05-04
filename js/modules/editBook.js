@@ -1,5 +1,5 @@
 import { updateGliderPosition, setStarRating } from './status-glider.js';
-import { selectedGenres, selectedTropes, listGenre, listTrope } from './tags.js';
+import { selectedGenres, listGenre } from './tags.js';
 
 const toggleBlock = (el, show) => {
     el.classList.toggle('hidden', !show);
@@ -30,9 +30,7 @@ const editStatusAndRating = (modal, book, statusInputName) => {
         if (book.status === 'completed') {
             setStarRating(modal, book.rating || 0);
             const opinion = modal.querySelector(`#${statusInputName}-opinion`);
-            const notes = modal.querySelector(`#${statusInputName}-notes`);
             if (opinion) opinion.value = book.opinion || '';
-            if (notes) notes.value = book.notes || '';
         }
     }
 };
@@ -61,21 +59,16 @@ export const setupEditModal = (book) => {
 
     const elements = {
         title: modal.querySelector('.edit-book_title'),
-        author: modal.querySelector('.edit-book_author'),
         cover: modal.querySelector('.edit-book_cover'),
         noCover: modal.querySelector('.edit-book_no-cover'),
         tags: modal.querySelector('.edit-book_tags'),
-        annotation: modal.querySelector('.edit-book_book-annotation')
     };
 
     elements.title.textContent = book.title;
-    elements.author.textContent = book.author;
 
     elements.tags.innerHTML = [
-        `<div class="tag-age">${book.age}</div>`,
         book.series ? `<div class="tag-series">${book.series} #${book.seriesNum}</div>` : '',
-        ...book.allGenres.map(g => `<div class="tag-genre">${g}</div>`),
-        ...book.allTropes.map(t => `<div class="tag-trope">${t}</div>`)
+        ...book.allGenres.map(g => `<div class="tag-genre">${g}</div>`)
     ].join('');
 
     const hasCover = !!book.cover;
@@ -86,11 +79,9 @@ export const setupEditModal = (book) => {
         elements.cover.src = book.cover;
     } else {
         elements.noCover.style.setProperty('--book-hue', book.accentHue);
-        elements.noCover.querySelector('.edit_no-author').textContent = book.author;
         elements.noCover.querySelector('.edit_no-title').textContent = book.title;
     }
 
-    setTextBlock(elements.annotation, book.annotation);
     editStatusAndRating(modal, book, 'edit');
 
     const editButtons = modal.querySelectorAll('.edit-book_controls .btn');
@@ -115,11 +106,8 @@ export const setupEditForm = (book) => {
 
     const fields = {
         'title': 'title',
-        'author': 'author',
         'series': 'series',
         'series-num': 'seriesNum',
-        'age': 'age',
-        'annotation': 'annotation'
     };
 
     Object.entries(fields).forEach(([name, key]) => {
@@ -139,14 +127,10 @@ export const setupEditForm = (book) => {
 
 
     selectedGenres.length = 0;
-    selectedTropes.length = 0;
     listGenre.innerHTML = '';
-    listTrope.innerHTML = '';
     listGenre.parentElement.classList.add('hidden');
-    listTrope.parentElement.classList.add('hidden');
 
     addTagToList(book.allGenres, selectedGenres, listGenre, 'genre-btn tag-genre', 'text-genre', 'delete-genre', 'active-genre', book.mainGenres);
-    addTagToList(book.allTropes, selectedTropes, listTrope, 'trope-btn tag-trope', 'text-trope', 'delete-trope', 'active-trope', book.mainTropes);
 
     editStatusAndRating(modal, book, 'add');
 };

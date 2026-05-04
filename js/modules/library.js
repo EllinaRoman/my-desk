@@ -19,14 +19,10 @@ const updateMyLists = (allBooks) => {
   });
 
   const listToUpdate = [
-    { element: document.querySelector('#author-list'), data: setAuthors },
     { element: document.querySelector('#series-list'), data: setSeries },
     { element: document.querySelector('#genres-list'), data: setGenres },
-    { element: document.querySelector('#tropes-list'), data: setTropes },
-    { element: document.querySelector('#author_filter'), data: setAuthors, isSelect: true },
     { element: document.querySelector('#series_filter'), data: setSeries, isSelect: true },
     { element: document.querySelector('#genres_filter'), data: setGenres, isSelect: true },
-    { element: document.querySelector('#tropes_filter'), data: setTropes, isSelect: true }
   ];
 
   listToUpdate.forEach(({ element, data, isSelect }) => {
@@ -46,7 +42,7 @@ export const displayBooks = (books) => {
 
   if (books.length === 0) {
     container.innerHTML = `<div class="no-book">
-            <span class="icon">📭</span>Книги не найдены. Добавьте первую!
+            <span class="icon">📭</span>Игры не найдены. Добавьте первую!
         </div>`;
     document.getElementById('app-loader')?.style.setProperty('display', 'none');
     return;
@@ -55,7 +51,6 @@ export const displayBooks = (books) => {
   let htmlContent = '';
   books.forEach((el) => {
     const displayGenres = (el.mainGenres && el.mainGenres.length > 0) ? el.mainGenres : (el.allGenres && el.allGenres.length > 0) ? el.allGenres.slice(0, 2) : [];
-    const displayTropes = (el.mainTropes && el.mainTropes.length > 0) ? el.mainTropes : (el.allTropes && el.allTropes.length > 0) ? el.allTropes.slice(0, 2) : [];
 
     let coverContent;
     if (el.cover) {
@@ -68,7 +63,6 @@ export const displayBooks = (books) => {
       coverContent = `
         <div class="new-book_no-cover" style="--book-hue: ${hueValue}">
             <p class="no-cover_title">${el.title}</p>
-            <p class="no-cover_author">${el.author}</p>
         </div>
     `;
     }
@@ -80,13 +74,10 @@ export const displayBooks = (books) => {
               <div class="new-book_info">
                 <div class="new-book_text">
                   <p class="new-book_title">${el.title}</p>
-                  <p class="new-book_author">${el.author}</p>
                 </div>
                 <div class="new-book_tags">
-                  <p class="tag-age new-book_age">${el.age}</p>
                   ${el.series ? "<p class='tag-series new-book_series'>Серия</p>" : ''}
                   ${displayGenres.map(g => `<p class="tag-genre new-book_genre">${g}</p>`).join('')}
-                  ${displayTropes.map(t => `<p class="tag-trope new-book_trope">${t}</p>`).join('')}
                   <p class="new-book_status" data-status="${el.status}">${el.statusText}</p>
                 </div>
                 ${el.status === 'completed' && el.rating > 0 ? `

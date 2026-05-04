@@ -12,10 +12,10 @@ import { db, auth, onAuthStateChanged } from './firebase-init.js';
 export let currentUser = null;
 
 const FIREBASE_USERS_COLLECTION = 'users';
-const FIREBASE_BOOKS_SUBCOLLECTION = 'books';
-const INDEXED_DB_NAME = 'my-shelf-local-db';
+const FIREBASE_BOOKS_SUBCOLLECTION = 'games';
+const INDEXED_DB_NAME = 'my-games-local-db';
 const INDEXED_DB_VERSION = 1;
-const INDEXED_DB_STORE = 'books';
+const INDEXED_DB_STORE = 'games';
 
 let resolveAuthReady;
 const authReady = new Promise((resolve) => {
@@ -196,8 +196,8 @@ const statusTextMap = {
     want: 'Хочу',
     future: 'Потом',
     'not-reading': 'Брошено',
-    reading: 'Читаю',
-    completed: 'Прочитано'
+    reading: 'Играю',
+    completed: 'Пройдено'
 };
 
 export const updateBookStatus = async (id, newStatus) => {

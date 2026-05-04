@@ -226,7 +226,7 @@ const editAction = async (btn) => {
 
             const statusTextMap = {
                 'want': 'Хочу', 'future': 'Потом', 'not-reading': 'Брошено',
-                'reading': 'Читаю', 'completed': 'Прочитано'
+                'reading': 'Играю', 'completed': 'Пройдено'
             };
 
             const updatedBook = {
@@ -234,7 +234,6 @@ const editAction = async (btn) => {
                 status: newStatus,
                 statusText: statusTextMap[newStatus] || newStatus,
                 opinion: newOpinion,
-                notes: newNotes,
                 rating: newStatus === 'completed' ? newRating : 0
             };
 
