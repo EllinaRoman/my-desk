@@ -58,14 +58,3 @@ btnAddGenres.addEventListener('click', () => {
 listGenre.addEventListener('click', (e) => {
     clickTag(e, selectedGenres, listGenre, 'active-genre', '.genre-btn', '.text-genre', '.delete-genre');
 });
-
-
-btnAddTropes.addEventListener('click', () => {
-    const input = document.querySelector('#tropes');
-    const container = document.querySelector('.add-trope');
-    addTag(input, selectedTropes, container, 'btn trope-btn tag-trope', 'text-trope', 'delete-trope');
-});
-
-listTrope.addEventListener('click', (e) => {
-    clickTag(e, selectedTropes, listTrope, 'active-trope', '.trope-btn', '.text-trope', '.delete-trope');
-});

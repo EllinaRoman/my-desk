@@ -7,12 +7,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBF3VnLe7KiiNjcHyiB1xPBMEgjIiIpYFE",
-  authDomain: "my-shelf-16ae6.firebaseapp.com",
-  projectId: "my-shelf-16ae6",
-  storageBucket: "my-shelf-16ae6.firebasestorage.app",
-  messagingSenderId: "732693139093",
-  appId: "1:732693139093:web:4834ce8b4c1e2494e2159c"
+  apiKey: "AIzaSyBSwV3C2fMps1AxGWYXckDBDONUJvjRyb0",
+  authDomain: "my-desk-ee5fc.firebaseapp.com",
+  projectId: "my-desk-ee5fc",
+  storageBucket: "my-desk-ee5fc.firebasestorage.app",
+  messagingSenderId: "362766784576",
+  appId: "1:362766784576:web:f2d0244c306c601402e7a5"
 };
 
 const app = initializeApp(firebaseConfig);

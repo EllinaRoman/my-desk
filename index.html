@@ -1,34 +1,29 @@
 <!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script>
-      (function () {
-        const theme = localStorage.getItem("theme") || "light";
-        document.documentElement.dataset.theme = theme;
-      })();
-    </script>
-    <title>My shelf</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="manifest" href="manifest.json" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Nunito:wght@300;400;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="icon" href="img/icon-192.png" type="image/png" />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    />
-    <link href="css/style.css" rel="stylesheet" />
-  </head>
 
-  <body>
-    <div
-      id="app-loader"
-      style="
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function () {
+      const theme = localStorage.getItem("theme") || "light";
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
+  <title>My desk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="manifest" href="manifest.json" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Nunito:wght@300;400;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="icon" href="img/icon-192.png" type="image/png" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link href="css/style.css" rel="stylesheet" />
+</head>
+
+<body>
+  <div id="app-loader" style="
         position: fixed;
         inset: 0;
         display: flex;
@@ -36,735 +31,409 @@
         justify-content: center;
         background-color: var(--bg);
         z-index: 9999;
-      "
-    >
-      <div class="flower-loader"></div>
+      ">
+    <div class="flower-loader"></div>
+  </div>
+  <header class="header_container">
+    <div class="container">
+      <h1 class="title">My <span class="title-accent">games</span></h1>
+      <div class="control">
+        <button type="button" class="btn btn_login-register" data-modal="login-register">
+          Вход
+        </button>
+        <button type="button" class="btn btn_add-book" data-modal="add-book">
+          + Добавить игру
+        </button>
+        <button type="button" class="btn btn_change-theme">🌸</button>
+      </div>
     </div>
-    <header class="header_container">
+  </header>
+
+  <main class="main_container">
+    <div class="main-control">
       <div class="container">
-        <h1 class="title">My <span class="title-accent">shelf</span></h1>
-        <div class="control">
-          <button
-            type="button"
-            class="btn btn_login-register"
-            data-modal="login-register"
-          >
-            Вход
+        <div class="filter">
+          <div class="search_group filter-group">
+            <label class="search_label" for="search">
+              <i class="bi bi-search"></i>
+            </label>
+            <input type="search" id="search" class="search_filter" placeholder="Поиск по названию..." />
+          </div>
+
+          <div class="status_group filter-group">
+            <label class="book-label filter-label" for="status_filter">статус</label>
+            <select class="filter-select" id="status_filter">
+              <option value="all">Все</option>
+              <option value="reading">Прохожу</option>
+              <option value="completed">Пройдено</option>
+              <option value="want">Хочу пройти</option>
+              <option value="future">Потом</option>
+              <option value="not-reading">Брошено</option>
+            </select>
+          </div>
+          <div class="series_group filter-group">
+            <label class="book-label filter-label" for="series_filter">серия</label>
+            <select class="filter-select" id="series_filter">
+              <option value="all">Все</option>
+            </select>
+          </div>
+          <div class="genres_group filter-group">
+            <label class="book-label filter-label" for="genres_filter">жанр</label>
+            <select class="filter-select" id="genres_filter">
+              <option value="all">Все</option>
+            </select>
+          </div>
+        </div>
+        <button type="button" class="btn btn_random-book" data-modal="random-book">
+          ✨ Случайная игра
+        </button>
+      </div>
+    </div>
+
+    <nav class="navigation container">
+      <div class="border_nav">
+        <button type="button" class="navigation_title active_title" id="my-shelf" data-target="book-grid">
+          Мои игры
+        </button>
+        <button type="button" class="navigation_title" id="all-shelves" data-target="all-shelves">
+          Игры
+        </button>
+        <button type="button" class="navigation_title" id="my-room" data-target="my-room">
+          Моя комната
+        </button>
+      </div>
+    </nav>
+
+    <div id="book-grid-content" class="book-grid container tab-content"></div>
+    <div id="all-shelves-content" class="all-shelves container hidden tab-content">
+      <div class="shelves-text no-book">В разработке...</div>
+    </div>
+    <div id="my-room-content" class="my-room container hidden tab-content">
+      <div class="room-text no-book">В разработке...</div>
+    </div>
+  </main>
+
+  <div class="modal_group">
+    <!-- Модалка регистрации -->
+    <div class="modal-overlay" data-modal="login-register">
+      <div class="modal_login-register modal-content">
+        <button type="button" class="close-modal">
+          <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
+        </button>
+
+        <h3 class="login-register_title">Добро пожаловать</h3>
+        <p class="login-register_hint">Войдите или создайте аккаунт</p>
+
+        <div class="form-group form-group--spaced login-register_group">
+          <div class="status-toggle">
+            <input type="radio" name="login-register" id="login" value="login" checked />
+            <input type="radio" name="login-register" id="register" value="register" />
+
+            <label for="login" class="status-active">Войти</label>
+            <label for="register">Регистрация</label>
+
+            <div class="status-glider"></div>
+          </div>
+          <div class="auth-divider">
+            <span>или</span>
+          </div>
+          <button type="button" class="btn btn-google" id="btn-google">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" />
+            Войти через Google
           </button>
-          <button type="button" class="btn btn_add-book" data-modal="add-book">
-            + Добавить книгу
-          </button>
-          <button type="button" class="btn btn_change-theme">🌸</button>
+        </div>
+
+        <div class="login-form">
+          <form class="login" id="login-form">
+            <div class="login-info">
+              <div class="login-email">
+                <label class="book-label" for="email-login">Email</label>
+                <input type="text" name="email-login" id="email-login" placeholder="shelf@email.com"
+                  class="form-input" />
+                <span class="error-message">Введите валидный email</span>
+              </div>
+              <div class="login-password js-password">
+                <label class="book-label" for="password-login">Пароль</label>
+                <input type="password" name="password-login" id="password-login" placeholder="••••••••"
+                  class="form-input" />
+                <button type="button" class="eye-toggle">
+                  <i class="bi bi-eye hidden"></i>
+                  <i class="bi bi-eye-slash"></i>
+                </button>
+                <span class="error-message">Неправильный логин или пароль</span>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn_login">
+              Войти
+            </button>
+          </form>
+        </div>
+        <div class="register-form hidden">
+          <form class="register" id="register-form">
+            <div class="register-info">
+              <div class="register-email">
+                <label class="book-label" for="email-register">Email</label>
+                <input type="text" name="email-register" id="email-register" placeholder="shelf@email.com"
+                  class="form-input" />
+                <span class="error-message">Введите валидный email</span>
+              </div>
+              <div class="register-password js-password">
+                <label class="book-label" for="password-register">Пароль</label>
+                <input type="password" name="password-register" id="password-register" placeholder="Минимум 6 символов"
+                  class="form-input" />
+                <button type="button" class="eye-toggle">
+                  <i class="bi bi-eye hidden"></i>
+                  <i class="bi bi-eye-slash"></i>
+                </button>
+                <span class="error-message">Пароль слишком короткий</span>
+              </div>
+              <div class="register-password-copy">
+                <label class="book-label" for="password-register-copy">Повторите пароль</label>
+                <input type="password" name="password-register-copy" id="password-register-copy" placeholder="••••••••"
+                  class="form-input" />
+                <span class="error-message">Пароли не совпадают</span>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn_register">
+              Создать аккаунт
+            </button>
+          </form>
         </div>
       </div>
-    </header>
+    </div>
 
-    <main class="main_container">
-      <div class="main-control">
-        <div class="container">
-          <div class="filter">
-            <div class="search_group filter-group">
-              <label class="search_label" for="search">
-                <i class="bi bi-search"></i>
-              </label>
-              <input
-                type="search"
-                id="search"
-                class="search_filter"
-                placeholder="Поиск по названию..."
-              />
+    <!-- Модалка случайной книги -->
+    <div class="modal-overlay" data-modal="random-book">
+      <div class="modal_random-book modal-content">
+        <button type="button" class="close-modal">
+          <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
+        </button>
+        <div class="modal_random-book_none hidden">Нет игр в коллекции</div>
+        <div class="modal_random-book_all hidden">
+          <div class="random-book_main-info">
+            <h3 class="random-book_title">✨ Случайная игра</h3>
+            <div class="random-book_book-info">
+              <img class="random-book_cover hidden" src="" alt="Обложка игры" />
+              <div class="random-book_no-cover hidden">
+                <p class="no-cover_title"></p>
+              </div>
+              <div class="random-book_tags"></div>
             </div>
-
-            <div class="status_group filter-group">
-              <label class="book-label filter-label" for="status_filter"
-                >статус</label
-              >
-              <select class="filter-select" id="status_filter">
-                <option value="all">Все</option>
-                <option value="reading">Читаю</option>
-                <option value="completed">Прочитано</option>
-                <option value="want">Хочу прочитать</option>
-                <option value="future">Потом</option>
-                <option value="not-reading">Брошено</option>
-              </select>
+            <div class="random-book_text">
+              <p class="random-book_book-title"></p>
+              <p class="random-book_book-author"></p>
             </div>
-            <div class="age_group filter-group">
-              <label class="book-label filter-label" for="age_filter"
-                >возраст</label
-              >
-              <select class="filter-select" id="age_filter">
-                <option value="all">Все</option>
-                <option value="0+">0+</option>
-                <option value="6+">6+</option>
-                <option value="12+">12+</option>
-                <option value="16+">16+</option>
-                <option value="18+">18+</option>
-              </select>
-            </div>
-            <div class="author_group filter-group">
-              <label class="book-label filter-label" for="author_filter"
-                >автор</label
-              >
-              <select class="filter-select" id="author_filter">
-                <option value="all">Все</option>
-              </select>
-            </div>
-            <div class="series_group filter-group">
-              <label class="book-label filter-label" for="series_filter"
-                >серия</label
-              >
-              <select class="filter-select" id="series_filter">
-                <option value="all">Все</option>
-              </select>
-            </div>
-            <div class="genres_group filter-group">
-              <label class="book-label filter-label" for="genres_filter"
-                >жанр</label
-              >
-              <select class="filter-select" id="genres_filter">
-                <option value="all">Все</option>
-              </select>
-            </div>
-            <div class="tropes_group filter-group">
-              <label class="book-label filter-label" for="tropes_filter"
-                >троп</label
-              >
-              <select class="filter-select" id="tropes_filter">
-                <option value="all">Все</option>
-              </select>
+            <div class="random-book_series-group hidden">
+              <p class="random-book_series-title"></p>
+              <ul class="random-book_all-series"></ul>
             </div>
           </div>
-          <button
-            type="button"
-            class="btn btn_random-book"
-            data-modal="random-book"
-          >
-            ✨ Случайная книга
-          </button>
+          <div class="random-book_buttons">
+            <button type="button" class="btn btn_random-book_want" data-action="want">
+              💜 Хочу поиграть
+            </button>
+            <button type="button" class="btn btn_random-book_future" data-action="future">
+              🌟 На потом
+            </button>
+          </div>
         </div>
       </div>
+    </div>
 
-      <nav class="navigation container">
-        <div class="border_nav">
-          <button
-            type="button"
-            class="navigation_title active_title"
-            id="my-shelf"
-            data-target="book-grid"
-          >
-            Моя полка
-          </button>
-          <button
-            type="button"
-            class="navigation_title"
-            id="all-shelves"
-            data-target="all-shelves"
-          >
-            Все полки
-          </button>
-          <button
-            type="button"
-            class="navigation_title"
-            id="my-room"
-            data-target="my-room"
-          >
-            Моя комната
-          </button>
-        </div>
-      </nav>
-
-      <div id="book-grid-content" class="book-grid container tab-content"></div>
-      <div
-        id="all-shelves-content"
-        class="all-shelves container hidden tab-content"
-      >
-        <div class="shelves-text no-book">В разработке...</div>
-      </div>
-      <div id="my-room-content" class="my-room container hidden tab-content">
-        <div class="room-text no-book">В разработке...</div>
-      </div>
-    </main>
-
-    <div class="modal_group">
-      <!-- Модалка регистрации -->
-      <div class="modal-overlay" data-modal="login-register">
-        <div class="modal_login-register modal-content">
-          <button type="button" class="close-modal">
-            <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
-          </button>
-
-          <h3 class="login-register_title">Добро пожаловать</h3>
-          <p class="login-register_hint">Войдите или создайте аккаунт</p>
-
-          <div class="form-group form-group--spaced login-register_group">
+    <!-- Модалка редактирования книги -->
+    <div class="modal-overlay" data-modal="edit-book">
+      <div class="modal_edit-book modal-content">
+        <button type="button" class="close-modal">
+          <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
+        </button>
+        <div class="edit-book_all-info">
+          <div class="edit-book_main-info">
+            <img class="edit-book_cover" src="" alt="Обложка книги" />
+            <div class="edit-book_no-cover hidden">
+              <p class="edit_no-title"></p>
+            </div>
+            <div class="edit-book_book-info">
+              <div class="edit-book_title-group">
+                <h3 class="edit-book_title"></h3>
+                <i class="bi bi-pencil"></i>
+              </div>
+            </div>
+          </div>
+          <div class="edit-book_tags"></div>
+          <div class="form-group form-group--divided status-book_group">
+            <label class="book-label">Статус</label>
             <div class="status-toggle">
-              <input
-                type="radio"
-                name="login-register"
-                id="login"
-                value="login"
-                checked
-              />
-              <input
-                type="radio"
-                name="login-register"
-                id="register"
-                value="register"
-              />
+              <input type="radio" name="edit-status" id="edit-future" value="future" checked />
+              <input type="radio" name="edit-status" id="edit-reading" value="reading" />
+              <input type="radio" name="edit-status" id="edit-completed" value="completed" />
+              <input type="radio" name="edit-status" id="edit-want" value="want" />
+              <input type="radio" name="edit-status" id="edit-nope" value="not-reading" />
 
-              <label for="login" class="status-active">Войти</label>
-              <label for="register">Регистрация</label>
+              <label for="edit-future" class="status-active">Потом</label>
+              <label for="edit-reading">Играю</label>
+              <label for="edit-completed">Пройдено</label>
+              <label for="edit-want">Хочу</label>
+              <label for="edit-nope">Брошено</label>
 
               <div class="status-glider"></div>
             </div>
-            <div class="auth-divider">
-              <span>или</span>
-            </div>
-            <button type="button" class="btn btn-google" id="btn-google">
-              <img
-                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                alt="Google"
-                width="18"
-              />
-              Войти через Google
-            </button>
-          </div>
-
-          <div class="login-form">
-            <form class="login" id="login-form">
-              <div class="login-info">
-                <div class="login-email">
-                  <label class="book-label" for="email-login">Email</label>
-                  <input
-                    type="text"
-                    name="email-login"
-                    id="email-login"
-                    placeholder="shelf@email.com"
-                    class="form-input"
-                  />
-                  <span class="error-message">Введите валидный email</span>
-                </div>
-                <div class="login-password js-password">
-                  <label class="book-label" for="password-login">Пароль</label>
-                  <input
-                    type="password"
-                    name="password-login"
-                    id="password-login"
-                    placeholder="••••••••"
-                    class="form-input"
-                  />
-                  <button type="button" class="eye-toggle">
-                    <i class="bi bi-eye hidden"></i>
-                    <i class="bi bi-eye-slash"></i>
-                  </button>
-                  <span class="error-message"
-                    >Неправильный логин или пароль</span
-                  >
-                </div>
-              </div>
-              <button type="submit" class="btn btn-primary btn_login">
-                Войти
-              </button>
-            </form>
-          </div>
-          <div class="register-form hidden">
-            <form class="register" id="register-form">
-              <div class="register-info">
-                <div class="register-email">
-                  <label class="book-label" for="email-register">Email</label>
-                  <input
-                    type="text"
-                    name="email-register"
-                    id="email-register"
-                    placeholder="shelf@email.com"
-                    class="form-input"
-                  />
-                  <span class="error-message">Введите валидный email</span>
-                </div>
-                <div class="register-password js-password">
-                  <label class="book-label" for="password-register"
-                    >Пароль</label
-                  >
-                  <input
-                    type="password"
-                    name="password-register"
-                    id="password-register"
-                    placeholder="Минимум 6 символов"
-                    class="form-input"
-                  />
-                  <button type="button" class="eye-toggle">
-                    <i class="bi bi-eye hidden"></i>
-                    <i class="bi bi-eye-slash"></i>
-                  </button>
-                  <span class="error-message">Пароль слишком короткий</span>
-                </div>
-                <div class="register-password-copy">
-                  <label class="book-label" for="password-register-copy"
-                    >Повторите пароль</label
-                  >
-                  <input
-                    type="password"
-                    name="password-register-copy"
-                    id="password-register-copy"
-                    placeholder="••••••••"
-                    class="form-input"
-                  />
-                  <span class="error-message">Пароли не совпадают</span>
-                </div>
-              </div>
-              <button type="submit" class="btn btn-primary btn_register">
-                Создать аккаунт
-              </button>
-            </form>
           </div>
         </div>
-      </div>
 
-      <!-- Модалка случайной книги -->
-      <div class="modal-overlay" data-modal="random-book">
-        <div class="modal_random-book modal-content">
-          <button type="button" class="close-modal">
-            <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
-          </button>
-          <div class="modal_random-book_none hidden">Нет книг в библиотеке</div>
-          <div class="modal_random-book_all hidden">
-            <div class="random-book_main-info">
-              <h3 class="random-book_title">✨ Случайная книга</h3>
-              <div class="random-book_book-info">
-                <img
-                  class="random-book_cover hidden"
-                  src=""
-                  alt="Обложка книги"
-                />
-                <div class="random-book_no-cover hidden">
-                  <p class="no-cover_title"></p>
-                  <p class="no-cover_author"></p>
-                </div>
-                <div class="random-book_tags"></div>
-              </div>
-              <div class="random-book_text">
-                <p class="random-book_book-title"></p>
-                <p class="random-book_book-author"></p>
-                <p class="random-book_book-annotation hidden"></p>
-              </div>
-              <div class="random-book_series-group hidden">
-                <p class="random-book_series-title"></p>
-                <ul class="random-book_all-series"></ul>
-              </div>
-            </div>
-            <div class="random-book_buttons">
-              <button
-                type="button"
-                class="btn btn_random-book_want"
-                data-action="want"
-              >
-                💜 Хочу прочитать
-              </button>
-              <button
-                type="button"
-                class="btn btn_random-book_future"
-                data-action="future"
-              >
-                🌟 На потом
-              </button>
+        <div class="book-rating_group add-book_rating hidden">
+          <div class="book-rating-with-stars">
+            <label class="book-label">Рейтинг</label>
+            <div class="star-rating">
+              <button class="star-btn star-active" type="button">★</button>
+              <button class="star-btn star-active" type="button">★</button>
+              <button class="star-btn" type="button">★</button>
+              <button class="star-btn" type="button">★</button>
+              <button class="star-btn" type="button">★</button>
+              <span class="error-message">Оцените игру</span>
             </div>
           </div>
+
+          <div class="book-rating-my-opinion">
+            <label class="book-label">Моё мнение</label>
+            <input name="edit-opinion" id="edit-opinion" class="form-input" placeholder="Когда закончили?" type="date">
+          </div>
+        </div>
+
+        <div class="edit-book_controls">
+          <button type="button" class="btn btn-delete" data-action="delete">
+            🗑 Удалить
+          </button>
+          <button type="button" class="btn btn-primary btn-save" data-action="save">
+            Сохранить
+          </button>
         </div>
       </div>
+    </div>
 
-      <!-- Модалка редактирования книги -->
-      <div class="modal-overlay" data-modal="edit-book">
-        <div class="modal_edit-book modal-content">
-          <button type="button" class="close-modal">
-            <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
+    <!-- Модалка подтверждения удаления -->
+    <div class="modal-overlay" data-modal="confirm-delete">
+      <div class="modal_confirm-delete modal-content">
+        <p class="confirm-delete_text">Удалить игру из коллекции?</p>
+        <div class="confirm-delete_controls">
+          <button type="button" class="btn btn-secondary btn-confirm-cancel">
+            Отмена
           </button>
-          <div class="edit-book_all-info">
-            <div class="edit-book_main-info">
-              <img class="edit-book_cover" src="" alt="Обложка книги" />
-              <div class="edit-book_no-cover hidden">
-                <p class="edit_no-title"></p>
-                <p class="edit_no-author"></p>
-              </div>
-              <div class="edit-book_book-info">
-                <div class="edit-book_title-group">
-                  <h3 class="edit-book_title"></h3>
-                  <i class="bi bi-pencil"></i>
+          <button type="button" class="btn btn-confirm-delete">
+            Удалить
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модалка добавления книги -->
+    <div class="modal-overlay" data-modal="add-book">
+      <form class="modal_add-book modal-content" id="modal_add-book">
+        <button type="button" class="close-modal">
+          <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
+        </button>
+        <h3 class="add-book_title">Новая игра</h3>
+
+        <div class="add-book_main">
+          <div class="add-book_list">
+            <div class="add-book_title-book">
+              <label class="book-label" for="title">Название *</label>
+              <input type="text" name="title" id="title" placeholder="Название игры" class="form-input" />
+              <span class="error-message">Введите название игры</span>
+            </div>
+            <div class="add-book_info">
+              <label class="add-book_label-cover" for="add-book_cover"><span class="cover-text">Загрузить
+                  обложку</span><img src="" alt="Preview" class="cover-preview hidden" /></label>
+              <input type="file" class="add-book_cover visually-hidden" accept="image/*" id="add-book_cover"
+                name="cover" />
+              <div class="add-book_text">
+                <div class="add-book_series-list">
+                  <label class="book-label" for="series">Серия</label>
+                  <input type="text" name="series" id="series" list="series-list" class="form-input form-input--field"
+                    placeholder="Название серии" />
+                  <datalist id="series-list"></datalist>
                 </div>
-                <p class="edit-book_author"></p>
-                <p class="edit-book_book-annotation"></p>
+                <div class="add-book_series-num-list">
+                  <label class="book-label" for="series-num">№ в серии</label>
+                  <input type="number" name="series-num" id="series-num" placeholder="Не указано"
+                    class="form-input form-input--field" />
+                  <span class="error-message">Введите номер серии</span>
+                </div>
               </div>
             </div>
-            <div class="edit-book_tags"></div>
-            <div class="form-group form-group--divided status-book_group">
+            <div class="add-book_genres">
+              <label class="book-label" for="genres">Жанры</label>
+              <div class="genres-group">
+                <div class="new-genre">
+                  <input type="text" name="genres" id="genres" list="genres-list" class="form-input form-input--tag"
+                    placeholder="Название жанра" />
+                  <datalist id="genres-list"></datalist>
+                  <button type="button" class="btn btn_add-tag" id="add_genre">
+                    + Добавить
+                  </button>
+                </div>
+                <div class="add-genre hidden">
+                  <div class="genre"></div>
+                  <p class="choice-advice">
+                    Выберите 2 основных нажатием на жанр
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="form-group form-group--divided status-book_group status_add-book">
               <label class="book-label">Статус</label>
               <div class="status-toggle">
-                <input
-                  type="radio"
-                  name="edit-status"
-                  id="edit-future"
-                  value="future"
-                  checked
-                />
-                <input
-                  type="radio"
-                  name="edit-status"
-                  id="edit-reading"
-                  value="reading"
-                />
-                <input
-                  type="radio"
-                  name="edit-status"
-                  id="edit-completed"
-                  value="completed"
-                />
-                <input
-                  type="radio"
-                  name="edit-status"
-                  id="edit-want"
-                  value="want"
-                />
-                <input
-                  type="radio"
-                  name="edit-status"
-                  id="edit-nope"
-                  value="not-reading"
-                />
+                <input type="radio" name="add-status" id="add-future" value="future" checked />
+                <input type="radio" name="add-status" id="add-reading" value="reading" />
+                <input type="radio" name="add-status" id="add-completed" value="completed" />
 
-                <label for="edit-future" class="status-active">Потом</label>
-                <label for="edit-reading">Читаю</label>
-                <label for="edit-completed">Прочитано</label>
-                <label for="edit-want">Хочу</label>
-                <label for="edit-nope">Брошено</label>
+                <input type="radio" name="add-status" id="add-want" value="want" />
+                <input type="radio" name="add-status" id="add-nope" value="not-reading" />
+
+                <label for="add-future" class="status-active">Потом</label>
+                <label for="add-reading">Играю</label>
+                <label for="add-completed">Пройдено</label>
+                <label for="add-want">Хочу</label>
+                <label for="add-nope">Брошено</label>
 
                 <div class="status-glider"></div>
               </div>
             </div>
           </div>
-
           <div class="book-rating_group add-book_rating hidden">
             <div class="book-rating-with-stars">
               <label class="book-label">Рейтинг</label>
-              <div class="star-rating">
-                <button class="star-btn star-active" type="button">★</button>
-                <button class="star-btn star-active" type="button">★</button>
+              <div class="star-rating" data-value="0" style="position: relative">
                 <button class="star-btn" type="button">★</button>
                 <button class="star-btn" type="button">★</button>
                 <button class="star-btn" type="button">★</button>
+                <button class="star-btn" type="button">★</button>
+                <button class="star-btn" type="button">★</button>
+
                 <span class="error-message">Оцените книгу</span>
               </div>
             </div>
 
             <div class="book-rating-my-opinion">
               <label class="book-label">Моё мнение</label>
-              <textarea
-                name="edit-opinion"
-                id="edit-opinion"
-                class="form-input form-input--textarea"
-                placeholder="Что понравилось? Что нет? Кому посоветуете?"
-              ></textarea>
-            </div>
-
-            <div class="book-rating-notes">
-              <label class="book-label">Заметки</label>
-              <textarea
-                name="edit-notes"
-                id="edit-notes"
-                class="form-input form-input--textarea"
-                placeholder="Цитаты, мысли, впечатления..."
-              ></textarea>
+              <input name="edit-opinion" id="edit-opinion" class="form-input" placeholder="Когда закончили?"
+                type="date">
             </div>
           </div>
 
-          <div class="edit-book_controls">
-            <button type="button" class="btn btn-delete" data-action="delete">
-              🗑 Удалить
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary btn-save"
-              data-action="save"
-            >
-              Сохранить
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Модалка подтверждения удаления -->
-      <div class="modal-overlay" data-modal="confirm-delete">
-        <div class="modal_confirm-delete modal-content">
-          <p class="confirm-delete_text">Удалить книгу с полки?</p>
-          <div class="confirm-delete_controls">
-            <button type="button" class="btn btn-secondary btn-confirm-cancel">
+          <div class="add-book_controls">
+            <button type="button" class="btn btn-secondary btn_add-book_cancel">
               Отмена
             </button>
-            <button type="button" class="btn btn-confirm-delete">
-              Удалить
+            <button type="submit" class="btn btn-primary btn_add-book_add">
+              Добавить на полку
             </button>
           </div>
         </div>
-      </div>
-
-      <!-- Модалка добавления книги -->
-      <div class="modal-overlay" data-modal="add-book">
-        <form class="modal_add-book modal-content" id="modal_add-book">
-          <button type="button" class="close-modal">
-            <img src="./img/Vector 2.svg" alt="Кнопка закрыть" class="close" />
-          </button>
-          <h3 class="add-book_title">Новая книга</h3>
-
-          <div class="add-book_main">
-            <div class="add-book_list">
-              <div class="add-book_title-book">
-                <label class="book-label" for="title">Название *</label>
-                <input
-                  type="text"
-                  name="title"
-                  id="title"
-                  placeholder="Название книги"
-                  class="form-input"
-                />
-                <span class="error-message">Введите название книги</span>
-              </div>
-              <div class="add-book_info">
-                <label class="add-book_label-cover" for="add-book_cover"
-                  ><span class="cover-text">Загрузить обложку</span
-                  ><img src="" alt="Preview" class="cover-preview hidden"
-                /></label>
-                <input
-                  type="file"
-                  class="add-book_cover visually-hidden"
-                  accept="image/*"
-                  id="add-book_cover"
-                  name="cover"
-                />
-                <div class="add-book_text">
-                  <div class="add-book_author-list">
-                    <label class="book-label" for="author">Автор *</label>
-                    <input
-                      type="text"
-                      name="author"
-                      id="author"
-                      list="author-list"
-                      class="form-input form-input--field"
-                      placeholder="Имя автора"
-                    />
-                    <span class="error-message">Введите имя автора</span>
-                    <datalist id="author-list"></datalist>
-                  </div>
-                  <div class="add-book_series-list">
-                    <label class="book-label" for="series">Серия / Цикл</label>
-                    <input
-                      type="text"
-                      name="series"
-                      id="series"
-                      list="series-list"
-                      class="form-input form-input--field"
-                      placeholder="Название серии"
-                    />
-                    <datalist id="series-list"></datalist>
-                  </div>
-                  <div class="add-book_series-num-list">
-                    <label class="book-label" for="series-num">№ в серии</label>
-                    <input
-                      type="number"
-                      name="series-num"
-                      id="series-num"
-                      placeholder="Не указано"
-                      class="form-input form-input--field"
-                    />
-                    <span class="error-message">Введите номер серии</span>
-                  </div>
-                  <div class="add-book_age-list">
-                    <label class="book-label" for="age"
-                      >Возрастное ограничение</label
-                    >
-                    <select
-                      id="age"
-                      name="age"
-                      class="form-input form-input--field"
-                    >
-                      <option value="0+">0+</option>
-                      <option value="6+">6+</option>
-                      <option value="12+">12+</option>
-                      <option value="16+">16+</option>
-                      <option value="18+">18+</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="add-book_genres">
-                <label class="book-label" for="genres">Жанры</label>
-                <div class="genres-group">
-                  <div class="new-genre">
-                    <input
-                      type="text"
-                      name="genres"
-                      id="genres"
-                      list="genres-list"
-                      class="form-input form-input--tag"
-                      placeholder="Название жанра"
-                    />
-                    <datalist id="genres-list"></datalist>
-                    <button
-                      type="button"
-                      class="btn btn_add-tag"
-                      id="add_genre"
-                    >
-                      + Добавить
-                    </button>
-                  </div>
-                  <div class="add-genre hidden">
-                    <div class="genre"></div>
-                    <p class="choice-advice">
-                      Выберите 2 основных нажатием на жанр
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div class="add-book_trops">
-                <label class="book-label" for="tropes">Тропы</label>
-                <div class="trops-group">
-                  <div class="new-trope">
-                    <input
-                      type="text"
-                      name="tropes"
-                      id="tropes"
-                      list="tropes-list"
-                      class="form-input form-input--tag"
-                      placeholder="Название тропа"
-                    />
-                    <datalist id="tropes-list"></datalist>
-                    <button
-                      type="button"
-                      class="btn btn_add-tag"
-                      id="add_trope"
-                    >
-                      + Добавить
-                    </button>
-                  </div>
-                </div>
-                <div class="add-trope hidden">
-                  <div class="trope"></div>
-                  <p class="choice-advice">
-                    Выберите 2 основных нажатием на троп
-                  </p>
-                </div>
-              </div>
-              <div class="add-book_annotation">
-                <label class="book-label" for="annotation">Аннотация</label>
-                <textarea
-                  name="annotation"
-                  id="annotation"
-                  class="form-input form-input--textarea"
-                  placeholder="Краткое описание книги"
-                ></textarea>
-              </div>
-              <div
-                class="form-group form-group--divided status-book_group status_add-book"
-              >
-                <label class="book-label">Статус</label>
-                <div class="status-toggle">
-                  <input
-                    type="radio"
-                    name="add-status"
-                    id="add-future"
-                    value="future"
-                    checked
-                  />
-                  <input
-                    type="radio"
-                    name="add-status"
-                    id="add-reading"
-                    value="reading"
-                  />
-                  <input
-                    type="radio"
-                    name="add-status"
-                    id="add-completed"
-                    value="completed"
-                  />
-
-                  <input
-                    type="radio"
-                    name="add-status"
-                    id="add-want"
-                    value="want"
-                  />
-                  <input
-                    type="radio"
-                    name="add-status"
-                    id="add-nope"
-                    value="not-reading"
-                  />
-
-                  <label for="add-future" class="status-active">Потом</label>
-                  <label for="add-reading">Читаю</label>
-                  <label for="add-completed">Прочитано</label>
-                  <label for="add-want">Хочу</label>
-                  <label for="add-nope">Брошено</label>
-
-                  <div class="status-glider"></div>
-                </div>
-              </div>
-            </div>
-            <div class="book-rating_group add-book_rating hidden">
-              <div class="book-rating-with-stars">
-                <label class="book-label">Рейтинг</label>
-                <div
-                  class="star-rating"
-                  data-value="0"
-                  style="position: relative"
-                >
-                  <button class="star-btn" type="button">★</button>
-                  <button class="star-btn" type="button">★</button>
-                  <button class="star-btn" type="button">★</button>
-                  <button class="star-btn" type="button">★</button>
-                  <button class="star-btn" type="button">★</button>
-
-                  <span class="error-message">Оцените книгу</span>
-                </div>
-              </div>
-
-              <div class="book-rating-my-opinion">
-                <label class="book-label">Моё мнение</label>
-
-                <textarea
-                  name="add-opinion"
-                  id="add-opinion"
-                  placeholder="Что понравилось? Что нет? Кому посоветуете?"
-                  class="form-input form-input--textarea"
-                ></textarea>
-              </div>
-
-              <div class="book-rating-notes">
-                <label class="book-label">Заметки</label>
-
-                <textarea
-                  name="add-notes"
-                  id="add-notes"
-                  placeholder="Цитаты, мысли, впечатления..."
-                  class="form-input form-input--textarea"
-                ></textarea>
-              </div>
-            </div>
-
-            <div class="add-book_controls">
-              <button
-                type="button"
-                class="btn btn-secondary btn_add-book_cancel"
-              >
-                Отмена
-              </button>
-              <button type="submit" class="btn btn-primary btn_add-book_add">
-                Добавить на полку
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
+      </form>
     </div>
-    <i class="bi bi-arrow-up btn-hidden" id="scrollTopBtn"></i>
-    <script type="module" src="./js/main.js"></script>
-  </body>
+  </div>
+  <i class="bi bi-arrow-up btn-hidden" id="scrollTopBtn"></i>
+  <script type="module" src="./js/main.js"></script>
+</body>
+
 </html>
