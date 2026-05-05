@@ -15,32 +15,34 @@
 }
 
 .add-book_list {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  display: contents;
 }
 
 .add-book_title-book {
   display: flex;
   flex-direction: column;
   position: relative;
+
+  order: 2;
+  margin-bottom: 20px;
 }
 
 .add-book_info {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  display: contents;
 }
 
 .add-book_text {
   display: flex;
   flex-direction: column;
   gap: 18px;
+
+  order: 3;
+  margin-bottom: 20px;
 }
 
 .add-book_label-cover {
-  width: 100%;
-  height: 100%;
+  width: 45%;
+  aspect-ratio: 2 / 3;
   border-radius: 12px;
   border: 1px dashed var(--card-border);
   text-align: center;
@@ -56,6 +58,20 @@
   cursor: pointer;
   overflow: hidden;
   position: relative;
+
+  order: 1;
+  margin: 0 auto;
+  margin-bottom: 20px;
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+
+.add-book_genres {
+  order: 4;
+  margin-bottom: 20px;
+}
+.status-book_group {
+  order: 7;
 }
 
 .cover-preview {
@@ -67,33 +83,39 @@
   left: 0;
 }
 
-.new-book_no-cover, .random-book_no-cover, .edit-book_no-cover {
-  --h: var(--book-hue, 280); 
-  background: linear-gradient(135deg, 
-    hsla(var(--h), 70%, 85%, 0.8), 
+.new-book_no-cover,
+.random-book_no-cover,
+.edit-book_no-cover {
+  --h: var(--book-hue, 280);
+  background: linear-gradient(
+    135deg,
+    hsla(var(--h), 70%, 85%, 0.8),
     var(--bg2)
   );
-  color: var(--text); 
+  color: var(--text);
   --title-color: var(--accent1);
 
   flex-shrink: 0;
 }
 
-html[data-theme="dark"] .new-book_no-cover, html[data-theme="dark"] .random-book_no-cover, html[data-theme="dark"] .edit-book_no-cover {
-  background: linear-gradient(135deg, 
-    hsla(var(--h), 40%, 30%, 0.9), 
+html[data-theme="dark"] .new-book_no-cover,
+html[data-theme="dark"] .random-book_no-cover,
+html[data-theme="dark"] .edit-book_no-cover {
+  background: linear-gradient(
+    135deg,
+    hsla(var(--h), 40%, 30%, 0.9),
     var(--card)
   );
 }
 
-.add-book_author-list, .add-book_series-num-list {
+.add-book_author-list,
+.add-book_series-num-list {
   position: relative;
 }
 
-
 /* @GENRES */ /* @TROPES */
 
-.genre, 
+.genre,
 .trope {
   flex: 1;
   padding: 8px 8px 8px 14px;
@@ -110,7 +132,7 @@ html[data-theme="dark"] .new-book_no-cover, html[data-theme="dark"] .random-book
   align-items: center;
 }
 
-.new-genre, 
+.new-genre,
 .new-trope {
   display: flex;
   align-items: center;
@@ -136,6 +158,8 @@ html[data-theme="dark"] .new-book_no-cover, html[data-theme="dark"] .random-book
   margin-right: auto;
   margin-top: 36px;
   position: relative;
+
+  order: 8;
 }
 
 .add-book_rating::before {
@@ -156,4 +180,7 @@ html[data-theme="dark"] .new-book_no-cover, html[data-theme="dark"] .random-book
   justify-content: flex-end;
   gap: 12px;
   width: 100%;
+
+  order: 9;
+  margin-top: 20px;
 }
