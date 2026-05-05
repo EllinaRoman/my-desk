@@ -249,6 +249,9 @@
   border-radius: 50%;
   color: var(--main_white);
   background-color: var(--accent1);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
 }
 
 .random-book_main-number {
